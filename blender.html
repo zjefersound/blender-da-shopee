@@ -128,6 +128,20 @@
       background: #353535;
     }
 
+    .layers-list .delete-button {
+      background: none;
+      color: #eee;
+      border: 0;
+      margin-left: auto;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .layers-list .delete-button:hover {
+      background: #555;
+    }
+
     #vertical-tools {
       background: #353535;
       border: 1px solid #555;
@@ -209,6 +223,7 @@
     const ICONS = {
       cursor: "ph ph-cursor",
       dot: "ph-fill ph-dots-three-outline",
+      trash: "ph ph-trash",
       line: "ph ph-line-segment",
     }
     const VERTICAL_TOOLS = [
@@ -257,6 +272,11 @@
       ]
     }
 
+    function removeLayer(id) {
+      appState.layers = appState.layers.filter(l => l.id !== id);
+      renderApp();
+    }
+
     function renderVerticalTools() {
       const verticalTools = document.getElementById('vertical-tools');
       verticalTools.innerHTML = "";
@@ -276,17 +296,27 @@
       layersList.innerHTML = "";
       for (const layer of appState.layers) {
         const li = document.createElement('li');
+
         const icon = document.createElement('i');
         icon.className = ICONS[layer.type];
         li.appendChild(icon);
+
         const text = document.createElement('span');
         text.innerText = layer.name;
         li.appendChild(text);
+
+        const deleteButton = document.createElement('button');
+        deleteButton.className = `${ICONS.trash} delete-button`;
+        deleteButton.onclick = () => removeLayer(layer.id)
+        li.appendChild(deleteButton);
+
+
         layersList.appendChild(li);
       }
     }
 
     function renderApp() {
+      clearCanvas(ctx)
       renderLayersList();
       renderVerticalTools();
       for (const layer of appState.layers) {
@@ -306,15 +336,19 @@
       }
       renderVerticalTools();
     }
+    function clearCanvas(context) {
+      const W = context.canvas.width, H = context.canvas.height;
+      context.setTransform(1, 0, 0, 1, 0, 0);
+      context.clearRect(0, 0, W, H);
+      context.setTransform(1, 0, 0, -1, W / 2, H / 2);
+    }
     const coordinatesDisplay = document.getElementById('coordinates');
     const canvas = document.getElementById("blender-canvas");
     var ctx = canvas.getContext("2d");
     canvas.height = window.innerHeight - 64 - 23;
     canvas.width = window.innerWidth - 280;
     const W = ctx.canvas.width, H = ctx.canvas.height;
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, W, H);
-    ctx.setTransform(1, 0, 0, -1, W / 2, H / 2);
+    clearCanvas(ctx)
 
     // ctx.setTransform(2, 0, 0, 2, W / 2, H / 2); // zooms in by 2 with origin at center
     // ctx.setTransform(0.5, 0, 0, 0.5, W / 2, H / 2); // zooms out by 2 with origin at center
