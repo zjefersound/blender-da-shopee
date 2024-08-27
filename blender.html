@@ -149,7 +149,7 @@
           <canvas id="blender-canvas" style="background-color: yellow;"></canvas>
         </div>
         <div class="display-info">
-          <div id="coordinates">Coordinates: (0, 0)</div>
+          <div id="coordinates">Coordenadas: (0, 0)</div>
         </div>
       </div>
       <div class="sidebar">
@@ -186,21 +186,31 @@
     </main>
   </div>
   <script>
+    const coordinatesDisplay = document.getElementById('coordinates');
     const canvas = document.getElementById("blender-canvas");
     var ctx = canvas.getContext("2d");
     canvas.height = window.innerHeight - 64 - 23;
     canvas.width = window.innerWidth - 280;
     const W = ctx.canvas.width, H = ctx.canvas.height;
-    ctx.setTransform(1, 0, 0, 1, 0, 0); // resets the transform to clear
-    ctx.clearRect(0, 0, W, H); // clears the canvas
-
-    ctx.setTransform(1, 0, 0, 1, W / 2, H / 2); // moves the origin to the center of
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    ctx.setTransform(1, 0, 0, -1, W / 2, H / 2); // moves the origin to the center of
     // the canvas
 
+    // ctx.setTransform(2, 0, 0, 2, W / 2, H / 2); // zooms in by 2 with origin at center
+    // ctx.setTransform(0.5, 0, 0, 0.5, W / 2, H / 2); // zooms out by 2 with origin at center
     ctx.strokeRect(-200, -200, 190, 190);
 
-
-
+    function getMousePos(evt) {
+      const rect = canvas.getBoundingClientRect();
+      const x = evt.clientX - rect.left - W / 2;
+      const y = - (evt.clientY - rect.top - H / 2)
+      return { x: x, y: y };
+    }
+    canvas.addEventListener('mousemove', (event) => {
+      const { x, y } = getMousePos(event);
+      coordinatesDisplay.textContent = `Coordenadas: (${x}, ${y})`;
+    });
     addEventListener("resize", () => {
       canvas.height = window.innerHeight - 64 - 23;
       canvas.width = window.innerWidth - 280
