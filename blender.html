@@ -190,6 +190,17 @@
     var ctx = canvas.getContext("2d");
     canvas.height = window.innerHeight - 64 - 23;
     canvas.width = window.innerWidth - 280;
+    const W = ctx.canvas.width, H = ctx.canvas.height;
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // resets the transform to clear
+    ctx.clearRect(0, 0, W, H); // clears the canvas
+
+    ctx.setTransform(1, 0, 0, 1, W / 2, H / 2); // moves the origin to the center of
+    // the canvas
+
+    ctx.strokeRect(-200, -200, 190, 190);
+
+
+
     addEventListener("resize", () => {
       canvas.height = window.innerHeight - 64 - 23;
       canvas.width = window.innerWidth - 280
