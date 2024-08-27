@@ -409,7 +409,10 @@
 
     addEventListener("resize", () => {
       canvas.height = window.innerHeight - 64 - 23;
-      canvas.width = window.innerWidth - 280
+      canvas.width = window.innerWidth - 280;
+
+      clearCanvas(ctx);
+      renderApp();
     })
     renderApp();
   </script>
