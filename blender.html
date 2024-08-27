@@ -120,6 +120,8 @@
     .layers-list li {
       padding: 2px 8px;
       font-size: 14px;
+      display: flex;
+      gap: 8px;
     }
 
     .layers-list li:nth-child(2n + 1) {
@@ -133,7 +135,7 @@
       position: absolute;
       left: 12px;
       top: 12px;
-      height: 300px;
+      min-height: 300px;
       width: 40px;
       overflow: hidden;
     }
@@ -146,7 +148,15 @@
       color: #eee;
       cursor: pointer;
       border: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
+
+    #vertical-tools button.active {
+      background: rgb(62, 62, 62);
+    }
+
 
     #vertical-tools button:hover {
       background: #444;
@@ -171,23 +181,11 @@
         </ul>
         <img class="logo" src="./logo.png" alt="Blender" />
       </nav>
-      <div class="tools">
-
-      </div>
+      <div class="tools"></div>
     </header>
     <main class="content">
       <div id="work-container">
-        <div id="vertical-tools">
-          <button id="tool-cursor" onclick="setCurrentTool('cursor')" title="Cursor">
-            <i class="ph ph-cursor"></i>
-          </button>
-          <button id="tool-dot" onclick="setCurrentTool('dot')" title="Adicionar ponto">
-            <i class="ph-fill ph-dots-three-outline"></i>
-          </button>
-          <button id="tool-line" onclick="setCurrentTool('line')" title="Adicionar linha">
-            <i class="ph ph-line-segment"></i>
-          </button>
-        </div>
+        <div id="vertical-tools"></div>
         <div id="canvas-container">
           <canvas id="blender-canvas" style="background-color: #AAA;"></canvas>
         </div>
@@ -198,37 +196,27 @@
       <div class="sidebar">
         <div class="layers-section">
           <h3>Camadas</h3>
-          <ul class="layers-list">
-            <li>
-              <i class="ph-fill ph-dots-three-outline"></i>
-              Ponto
-            </li>
-            <li>
-              <i class="ph ph-line-segment"></i>
-              Linha
-            </li>
-            <li>
-              <i class="ph-fill ph-dots-three-outline"></i>
-              Ponto
-            </li>
-            <li>
-              <i class="ph ph-line-segment"></i>
-              Linha
-            </li>
-            <li>
-              <i class="ph-fill ph-dots-three-outline"></i>
-              Ponto
-            </li>
-            <li>
-              <i class="ph ph-line-segment"></i>
-              Linha
-            </li>
-          </ul>
+          <ul class="layers-list" id="layers-list"></ul>
         </div>
       </div>
     </main>
   </div>
   <script>
+    const RECT_TYPES = {
+      dot: "dot",
+      line: "line",
+    }
+    const ICONS = {
+      cursor: "ph ph-cursor",
+      dot: "ph-fill ph-dots-three-outline",
+      line: "ph ph-line-segment",
+    }
+    const VERTICAL_TOOLS = [
+      { id: "cursor", icon: ICONS.cursor, label: "Cursor" },
+      { id: "addDot", icon: ICONS.dot, label: "Adicionar ponto" },
+      { id: "addLine", icon: ICONS.line, label: "Adicionar linha" },
+    ]
+
     class Rect {
       constructor(type, name, position) {
         this.id = Math.random();
@@ -237,12 +225,12 @@
         this.position = position;
       }
       draw() {
-        if (this.type === "dot") {
+        if (this.type === RECT_TYPES.dot) {
           ctx.beginPath();
           ctx.arc(this.position[0], this.position[1], 3, 0, Math.PI * 2);
           ctx.fillStyle = 'black';
           ctx.fill();
-        } else if (this.type === "line") {
+        } else if (this.type === RECT_TYPES.line) {
           ctx.beginPath();
           ctx.moveTo(this.position[0][0], this.position[0][1]);
           ctx.lineTo(this.position[1][0], this.position[1][1]);
@@ -256,20 +244,61 @@
     }
 
     const appState = {
-      currentTool: 'cursor',
-      layers: []
+      currentTool: VERTICAL_TOOLS[0].id,
+      layers: [
+        new Rect(RECT_TYPES.dot, "Ponto 1", [100, 100]),
+        new Rect(RECT_TYPES.dot, "Ponto 2", [100, -100]),
+        new Rect(RECT_TYPES.dot, "Ponto 3", [0, 0]),
+        new Rect(RECT_TYPES.dot, "Ponto 4", [-100, 100]),
+        new Rect(RECT_TYPES.dot, "Ponto 5", [-100, -100]),
+        new Rect(RECT_TYPES.line, "Linha 1", [[100, -100], [-100, -100]]),
+        new Rect(RECT_TYPES.line, "Linha 2", [[100, -100], [-100, 100]]),
+      ]
     }
 
+    function renderVerticalTools() {
+      const verticalTools = document.getElementById('vertical-tools');
+      verticalTools.innerHTML = "";
+      for (const tool of VERTICAL_TOOLS) {
+        const button = document.createElement('button');
+        button.className = appState.currentTool === tool.id ? "active" : "";
+        button.onclick = () => setCurrentTool(tool.id)
+        const icon = document.createElement('i');
+        icon.className = tool.icon;
+        button.appendChild(icon);
+        verticalTools.appendChild(button)
+      }
+    }
+
+    function renderLayersList() {
+      const layersList = document.getElementById('layers-list');
+      layersList.innerHTML = "";
+      for (const layer of appState.layers) {
+        const li = document.createElement('li');
+        const icon = document.createElement('i');
+        icon.className = ICONS[layer.type];
+        li.appendChild(icon);
+        const text = document.createElement('span');
+        text.innerText = layer.name;
+        li.appendChild(text);
+        layersList.appendChild(li);
+      }
+    }
+
+    function renderApp() {
+      renderLayersList();
+      renderVerticalTools();
+    }
 
     function setCurrentTool(tool) {
-      appState.setCurrentTool = tool;
+      appState.currentTool = tool;
       const canvasContainer = document.getElementById('canvas-container');
       if (tool === "cursor") {
         canvasContainer.style.cursor = 'inherit';
       } else {
         canvasContainer.style.cursor = 'crosshair';
       }
-
+      renderVerticalTools();
     }
     const coordinatesDisplay = document.getElementById('coordinates');
     const canvas = document.getElementById("blender-canvas");
@@ -298,18 +327,10 @@
       canvas.height = window.innerHeight - 64 - 23;
       canvas.width = window.innerWidth - 280
     })
-    const layers = [
-      new Rect("dot", "Ponto 1", [100, 100]),
-      new Rect("dot", "Ponto 1", [100, -100]),
-      new Rect("dot", "Ponto 1", [0, 0]),
-      new Rect("dot", "Ponto 1", [-100, 100]),
-      new Rect("dot", "Ponto 1", [-100, -100]),
-      new Rect("line", "Ponto 1", [[100, -100], [-100, -100]]),
-      new Rect("line", "Ponto 1", [[100, -100], [-100, 100]]),
-    ]
-    for (const layer of layers) {
+    for (const layer of appState.layers) {
       layer.draw();
     }
+    renderApp();
   </script>
 </body>
 
