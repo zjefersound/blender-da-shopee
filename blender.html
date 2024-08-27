@@ -263,10 +263,10 @@
         }
       }
     }
-
     const appState = {
       currentTool: VERTICAL_TOOLS[0].id,
       isDrawing: false,
+      cursorState: null,
       layers: [
         new Rect(RECT_TYPES.dot, "Ponto 1", [100, 100]),
         new Rect(RECT_TYPES.dot, "Ponto 2", [100, -100]),
@@ -379,6 +379,33 @@
         renderApp();
       }
     });
+
+    function startLine(event) {
+      if (appState.currentTool === "addLine") {
+        const { x, y } = getMousePos(event);
+
+        appState.cursorState = { mousedownPosition: [x, y] }
+      }
+    }
+
+    function endLine(event) {
+      if (appState.currentTool === "addLine") {
+        const { x, y } = getMousePos(event);
+
+        const startPosition = appState.cursorState?.mousedownPosition;
+        if (startPosition) {
+          const endPosition = [x, y]
+          const newName = "Linha " + appState.layers.filter(l => l.type === "line").length
+          const rect = new Rect(RECT_TYPES.line, newName, [startPosition, endPosition])
+          appState.layers.push(rect);
+          appState.cursorState = null;
+          renderApp();
+        }
+      }
+    }
+
+    canvas.addEventListener('mousedown', startLine);
+    canvas.addEventListener('mouseup', endLine);
 
     addEventListener("resize", () => {
       canvas.height = window.innerHeight - 64 - 23;
