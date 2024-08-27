@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" sizes="16x16"
+    href="https://www.blender.org/wp-content/themes/bthree/assets/icons/favicon-16x16.png">
+  <title>Blender da Shopee</title>
+  <script src="https://cdn.jsdelivr.net/npm/phosphor-icons@1.4.2/src/index.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/phosphor-icons@1.4.2/src/css/icons.min.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #444;
+      color: #eee;
+      display: flex;
+      height: 100dvh;
+      font-family: sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+    }
+
+    .toolbar nav {
+      background: #161616;
+      border-bottom: 1px solid #555;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+    }
+
+    .toolbar nav ul {
+      display: flex;
+      list-style: none;
+      height: 32px;
+    }
+
+    .toolbar nav ul li {
+      padding: 0 4px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .toolbar nav ul li:hover {
+      background: #444;
+    }
+
+    .tools {
+      display: flex;
+      border-bottom: 1px solid #555;
+      height: 32px;
+      align-items: center;
+      padding: 0 16px;
+    }
+
+    .logo {
+      height: 24px;
+      margin-left: auto;
+    }
+
+    .content {
+      display: flex;
+      flex: 1;
+
+    }
+
+    .sidebar {
+      background: #262626;
+      border-left: 1px solid #555;
+
+      width: 280px;
+    }
+
+    #work-container {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    #canvas-container {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .display-info {
+      border-top: 1px solid #555;
+      padding: 2px 16px;
+    }
+
+    .layers-section {
+      padding: 8px 0;
+    }
+
+    .layers-section h3 {
+      font-size: 16px;
+      padding: 2px 8px;
+    }
+
+    .layers-list {
+      list-style: none;
+      background: #2f2f2f;
+    }
+
+    .layers-list li {
+      padding: 2px 8px;
+      font-size: 14px;
+    }
+
+    .layers-list li:nth-child(2n + 1) {
+      background: #353535;
+    }
+  </style>
+  <script src="https://unpkg.com/phosphor-icons"></script>
+</head>
+
+<body>
+  <div class="container">
+    <header class="toolbar">
+      <nav>
+        <ul>
+          <li>File</li>
+          <li>Edit</li>
+          <li>Render</li>
+          <li>Help</li>
+        </ul>
+        <img class="logo" src="./logo.png" alt="Blender" />
+      </nav>
+      <div class="tools">
+
+      </div>
+    </header>
+    <main class="content">
+      <div id="work-container">
+        <div id="canvas-container">
+
+          <!-- <canvas id="blender-canvas" style="background-color: red;"></canvas> -->
+        </div>
+        <div class="display-info">
+          <div id="coordinates">Coordinates: (0, 0)</div>
+        </div>
+      </div>
+      <div class="sidebar">
+        <div class="layers-section">
+          <h3>Camadas</h3>
+          <ul class="layers-list">
+            <li>
+              <i class="ph-fill ph-dots-three-outline"></i>
+              Ponto
+            </li>
+            <li>
+              <i class="ph ph-line-segment"></i>
+              Linha
+            </li>
+            <li>
+              <i class="ph-fill ph-dots-three-outline"></i>
+              Ponto
+            </li>
+            <li>
+              <i class="ph ph-line-segment"></i>
+              Linha
+            </li>
+            <li>
+              <i class="ph-fill ph-dots-three-outline"></i>
+              Ponto
+            </li>
+            <li>
+              <i class="ph ph-line-segment"></i>
+              Linha
+            </li>
+          </ul>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    // var c = document.getElementById("blender-canvas");
+    // var ctx = c.getContext("2d");
+    // ctx.moveTo(0, 0);
+    // ctx.lineTo(2000, 100);
+    // ctx.stroke();
+  </script>
+</body>
+
+</html>
