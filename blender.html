@@ -134,6 +134,17 @@
       background: #353535;
     }
 
+    .layers-list li input {
+      display: flex;
+      color: #eee;
+      background: none;
+      border: 0;
+    }
+
+    .layers-list li input:focus {
+      background: #444444;
+    }
+
     .layers-list .delete-button {
       background: none;
       color: #eee;
@@ -245,6 +256,9 @@
         this.name = name;
         this.position = position;
       }
+      setName(name) {
+        this.name = name;
+      }
       draw() {
         if (this.type === RECT_TYPES.dot) {
           ctx.beginPath();
@@ -307,8 +321,23 @@
         icon.className = ICONS[layer.type];
         li.appendChild(icon);
 
-        const text = document.createElement('span');
-        text.innerText = layer.name;
+        const text = document.createElement('input');
+        text.id = "layer-input-" + layer.id;
+        text.value = layer.name;
+        text.onblur = event => {
+          console.log(event.currentTarget.value.trim());
+          if (!event.currentTarget.value.trim()) {
+            text.value = layer.name;
+          } else {
+            appState.layers = appState.layers.map(l => {
+              if (l.id === layer.id) {
+                layer.setName(event.currentTarget.value)
+              }
+              return l
+            });
+          }
+
+        }
         li.appendChild(text);
 
         const deleteButton = document.createElement('button');
@@ -322,6 +351,8 @@
     }
 
     function renderApp() {
+      console.log(appState.layers);
+
       clearCanvas(ctx)
       renderLayersList();
       renderVerticalTools();
