@@ -77,7 +77,7 @@
     }
 
     .sidebar {
-      background: #262626;
+      background: #2e2e2e;
       border-left: 1px solid #555;
 
       width: 280px;
@@ -93,6 +93,7 @@
       display: flex;
       flex-direction: column;
       flex: 1;
+      background: #000;
     }
 
     .display-info {
@@ -145,8 +146,7 @@
     <main class="content">
       <div id="work-container">
         <div id="canvas-container">
-
-          <!-- <canvas id="blender-canvas" style="background-color: red;"></canvas> -->
+          <canvas id="blender-canvas" style="background-color: yellow;"></canvas>
         </div>
         <div class="display-info">
           <div id="coordinates">Coordinates: (0, 0)</div>
@@ -186,11 +186,39 @@
     </main>
   </div>
   <script>
-    // var c = document.getElementById("blender-canvas");
-    // var ctx = c.getContext("2d");
-    // ctx.moveTo(0, 0);
-    // ctx.lineTo(2000, 100);
-    // ctx.stroke();
+    const canvas = document.getElementById("blender-canvas");
+    var ctx = canvas.getContext("2d");
+    canvas.height = window.innerHeight - 64 - 23;
+    canvas.width = window.innerWidth - 280;
+    addEventListener("resize", () => {
+      canvas.height = window.innerHeight - 64 - 23;
+      canvas.width = window.innerWidth - 280
+    })
+    const layers = [
+      { type: 'dot', position: [100, 100] },
+      { type: 'dot', position: [10, 100] },
+      { type: 'line', position: [[0, 0], [100, 300]] },
+      { type: 'dot', position: [100, 10] },
+      { type: 'dot', position: [70, 30] },
+      { type: 'dot', position: [50, 12] },
+      { type: 'line', position: [[100, 100], [200, 200]] },
+    ]
+    for (const layer of layers) {
+      if (layer.type === "dot") {
+        ctx.beginPath();
+        ctx.arc(layer.position[0], layer.position[1], 3, 0, Math.PI * 2);
+        ctx.fillStyle = 'black';
+        ctx.fill();
+      }
+      if (layer.type === "line") {
+        ctx.beginPath();
+        ctx.moveTo(layer.position[0][0], layer.position[0][1]);
+        ctx.lineTo(layer.position[1][0], layer.position[1][1]);
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+    }
   </script>
 </body>
 
