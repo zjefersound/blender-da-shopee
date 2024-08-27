@@ -245,6 +245,7 @@
 
     const appState = {
       currentTool: VERTICAL_TOOLS[0].id,
+      isDrawing: false,
       layers: [
         new Rect(RECT_TYPES.dot, "Ponto 1", [100, 100]),
         new Rect(RECT_TYPES.dot, "Ponto 2", [100, -100]),
@@ -288,14 +289,19 @@
     function renderApp() {
       renderLayersList();
       renderVerticalTools();
+      for (const layer of appState.layers) {
+        layer.draw();
+      }
     }
 
     function setCurrentTool(tool) {
       appState.currentTool = tool;
       const canvasContainer = document.getElementById('canvas-container');
       if (tool === "cursor") {
+        appState.isDrawing = false;
         canvasContainer.style.cursor = 'inherit';
       } else {
+        appState.isDrawing = true;
         canvasContainer.style.cursor = 'crosshair';
       }
       renderVerticalTools();
@@ -323,13 +329,21 @@
       const { x, y } = getMousePos(event);
       coordinatesDisplay.textContent = `Coordenadas: (${x}, ${y})`;
     });
+
+    canvas.addEventListener('click', (event) => {
+      if (appState.currentTool === "addDot") {
+        const { x, y } = getMousePos(event);
+        const newName = "Ponto " + appState.layers.filter(l => l.type === "dot").length
+        const rect = new Rect(RECT_TYPES.dot, newName, [x, y])
+        appState.layers.push(rect);
+        renderApp();
+      }
+    });
+
     addEventListener("resize", () => {
       canvas.height = window.innerHeight - 64 - 23;
       canvas.width = window.innerWidth - 280
     })
-    for (const layer of appState.layers) {
-      layer.draw();
-    }
     renderApp();
   </script>
 </body>
