@@ -87,6 +87,7 @@
       display: flex;
       flex-direction: column;
       flex: 1;
+      position: relative;
     }
 
     #canvas-container {
@@ -123,6 +124,36 @@
     .layers-list li:nth-child(2n + 1) {
       background: #353535;
     }
+
+    #vertical-tools {
+      background: #353535;
+      border: 1px solid #555;
+      border-radius: 4px;
+      position: absolute;
+      left: 12px;
+      top: 12px;
+      height: 300px;
+      width: 40px;
+      overflow: hidden;
+    }
+
+    #vertical-tools button {
+      width: 100%;
+      aspect-ratio: 1;
+      font-size: 1.25rem;
+      background: none;
+      color: #eee;
+      cursor: pointer;
+      border: 0;
+    }
+
+    #vertical-tools button:hover {
+      background: #444;
+    }
+
+    #vertical-tools button:active {
+      background: #555;
+    }
   </style>
   <script src="https://unpkg.com/phosphor-icons"></script>
 </head>
@@ -145,8 +176,19 @@
     </header>
     <main class="content">
       <div id="work-container">
+        <div id="vertical-tools">
+          <button id="tool-cursor" onclick="setCurrentTool('cursor')" title="Cursor">
+            <i class="ph ph-cursor"></i>
+          </button>
+          <button id="tool-dot" onclick="setCurrentTool('dot')" title="Adicionar ponto">
+            <i class="ph-fill ph-dots-three-outline"></i>
+          </button>
+          <button id="tool-line" onclick="setCurrentTool('line')" title="Adicionar linha">
+            <i class="ph ph-line-segment"></i>
+          </button>
+        </div>
         <div id="canvas-container">
-          <canvas id="blender-canvas" style="background-color: yellow;"></canvas>
+          <canvas id="blender-canvas" style="background-color: #AAA;"></canvas>
         </div>
         <div class="display-info">
           <div id="coordinates">Coordenadas: (0, 0)</div>
@@ -186,6 +228,30 @@
     </main>
   </div>
   <script>
+    class Rect {
+      constructor(type, name, position) {
+        this.type = type;
+        this.name = name;
+        this.position = position;
+      }
+    }
+
+    const appState = {
+      currentTool: 'cursor',
+      layers: []
+    }
+
+
+    function setCurrentTool(tool) {
+      appState.setCurrentTool = tool;
+      const canvasContainer = document.getElementById('canvas-container');
+      if (tool === "cursor") {
+        canvasContainer.style.cursor = 'inherit';
+      } else {
+        canvasContainer.style.cursor = 'crosshair';
+      }
+
+    }
     const coordinatesDisplay = document.getElementById('coordinates');
     const canvas = document.getElementById("blender-canvas");
     var ctx = canvas.getContext("2d");
@@ -194,12 +260,10 @@
     const W = ctx.canvas.width, H = ctx.canvas.height;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, W, H);
-    ctx.setTransform(1, 0, 0, -1, W / 2, H / 2); // moves the origin to the center of
-    // the canvas
+    ctx.setTransform(1, 0, 0, -1, W / 2, H / 2);
 
     // ctx.setTransform(2, 0, 0, 2, W / 2, H / 2); // zooms in by 2 with origin at center
     // ctx.setTransform(0.5, 0, 0, 0.5, W / 2, H / 2); // zooms out by 2 with origin at center
-    ctx.strokeRect(-200, -200, 190, 190);
 
     function getMousePos(evt) {
       const rect = canvas.getBoundingClientRect();
@@ -216,13 +280,13 @@
       canvas.width = window.innerWidth - 280
     })
     const layers = [
-      { type: 'dot', position: [100, 100] },
-      { type: 'dot', position: [10, 100] },
-      { type: 'line', position: [[0, 0], [100, 300]] },
-      { type: 'dot', position: [100, 10] },
-      { type: 'dot', position: [70, 30] },
-      { type: 'dot', position: [50, 12] },
-      { type: 'line', position: [[100, 100], [200, 200]] },
+      new Rect("dot", "Ponto 1", [100, 100]),
+      new Rect("dot", "Ponto 1", [100, -100]),
+      new Rect("dot", "Ponto 1", [0, 0]),
+      new Rect("dot", "Ponto 1", [-100, 100]),
+      new Rect("dot", "Ponto 1", [-100, -100]),
+      new Rect("line", "Ponto 1", [[100, -100], [-100, -100]]),
+      new Rect("line", "Ponto 1", [[100, -100], [-100, 100]]),
     ]
     for (const layer of layers) {
       if (layer.type === "dot") {
