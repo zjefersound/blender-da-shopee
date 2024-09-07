@@ -1,15 +1,12 @@
 import { RECT_TYPES } from "./constants.mjs";
+import { Layer } from "./Layer.mjs";
 
-export class Rect {
+export class Rect extends Layer {
   constructor(type, name, position) {
-    this.id = Math.random();
-    this.type = type;
-    this.name = name;
+    super(type, name);
     this.position = position;
   }
-  setName(name) {
-    this.name = name;
-  }
+
   draw(ctx) {
     if (this.type === RECT_TYPES.dot) {
       ctx.beginPath();

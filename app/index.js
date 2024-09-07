@@ -44,7 +44,7 @@ const app = new App({
 });
 
 function removeLayer(id) {
-  app.state.layers = app.state.layers.filter((l) => l.id !== id);
+  app.state.layers.remove(id);
   renderApp();
 }
 
@@ -66,7 +66,7 @@ function renderVerticalTools() {
 function renderLayersList() {
   const layersList = document.getElementById("layers-list");
   layersList.innerHTML = "";
-  for (const layer of app.state.layers) {
+  for (const layer of app.state.layers.getItems()) {
     const li = document.createElement("li");
 
     const icon = document.createElement("i");
@@ -81,12 +81,14 @@ function renderLayersList() {
       if (!event.currentTarget.value.trim()) {
         text.value = layer.name;
       } else {
-        app.state.layers = app.state.layers.map((l) => {
-          if (l.id === layer.id) {
-            layer.setName(event.currentTarget.value);
-          }
-          return l;
-        });
+        app.state.layers.setItems(
+          app.state.layers.getItems().map((l) => {
+            if (l.id === layer.id) {
+              layer.setName(event.currentTarget.value);
+            }
+            return l;
+          })
+        );
       }
     };
     li.appendChild(text);
@@ -106,7 +108,7 @@ function renderApp() {
   clearCanvas(ctx);
   renderLayersList();
   renderVerticalTools();
-  for (const layer of app.state.layers) {
+  for (const layer of app.state.layers.getItems()) {
     layer.draw(ctx);
   }
 }
@@ -160,8 +162,7 @@ canvas.addEventListener("mousemove", (event) => {
 canvas.addEventListener("click", (event) => {
   if (app.state.currentTool === "addDot") {
     const { x, y } = getMousePos(event);
-    const newName =
-      "Ponto " + app.state.layers.filter((l) => l.type === "dot").length;
+    const newName = app.state.layers.generateName("dot");
     const rect = new Rect(RECT_TYPES.dot, newName, [x, y]);
     app.state.layers.push(rect);
     renderApp();
@@ -197,9 +198,7 @@ function keyDownEvents(event) {
         alert("Adicione pelo menos 3 pontos para criar um polígono");
         return;
       }
-      const newName =
-        "Polígono " +
-        app.state.layers.filter((l) => l.type === "polygon").length;
+      const newName = app.state.layers.generateName("polygon");
       const rect = new Rect(
         RECT_TYPES.polygon,
         newName,
@@ -216,8 +215,7 @@ function keyDownEvents(event) {
         );
         return;
       }
-      const newName =
-        "Polilinha " + app.state.layers.filter((l) => l.type === "lines").length;
+      const newName = app.state.layers.generateName("lines");
       const rect = new Rect(
         RECT_TYPES.lines,
         newName,
@@ -230,7 +228,7 @@ function keyDownEvents(event) {
   }
 }
 
-function startLine(event) {
+function mouseDownEvents(event) {
   if (app.state.currentTool === "addLine") {
     const { x, y } = getMousePos(event);
 
@@ -238,15 +236,14 @@ function startLine(event) {
   }
 }
 
-function endLine(event) {
+function mouseUpEvents(event) {
   if (app.state.currentTool === "addLine") {
     const { x, y } = getMousePos(event);
 
     const startPosition = app.state.cursorState?.mousedownPosition;
     if (startPosition) {
       const endPosition = [x, y];
-      const newName =
-        "Linha " + app.state.layers.filter((l) => l.type === "line").length;
+      const newName = app.state.layers.generateName("line");
       const rect = new Rect(RECT_TYPES.line, newName, [
         startPosition,
         endPosition,
@@ -258,8 +255,8 @@ function endLine(event) {
   }
 }
 
-canvas.addEventListener("mousedown", startLine);
-canvas.addEventListener("mouseup", endLine);
+canvas.addEventListener("mousedown", mouseDownEvents);
+canvas.addEventListener("mouseup", mouseUpEvents);
 addEventListener("keydown", keyDownEvents);
 
 addEventListener("resize", () => {

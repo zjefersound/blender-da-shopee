@@ -5,6 +5,13 @@ export const RECT_TYPES = {
   polygon: "polygon",
 };
 
+export const LAYER_NAMES = {
+  dot: "Ponto",
+  line: "Linha",
+  lines: "Polilinha",
+  polygon: "Polígono",
+};
+
 export const ICONS = {
   cursor: "ph ph-cursor",
   dot: "ph-fill ph-dots-three-outline",
