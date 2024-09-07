@@ -1,3 +1,4 @@
+import { App } from "./App.mjs";
 import {
   HELPER_TEXT,
   ICONS,
@@ -6,7 +7,7 @@ import {
 } from "./constants.mjs";
 import { Rect } from "./Rect.mjs";
 
-const appState = {
+const app = new App({
   currentTool: VERTICAL_TOOLS[0].id,
   isDrawing: false,
   cursorState: null,
@@ -40,10 +41,10 @@ const appState = {
       [-150, 100],
     ]),
   ],
-};
+});
 
 function removeLayer(id) {
-  appState.layers = appState.layers.filter((l) => l.id !== id);
+  app.state.layers = app.state.layers.filter((l) => l.id !== id);
   renderApp();
 }
 
@@ -52,7 +53,7 @@ function renderVerticalTools() {
   verticalTools.innerHTML = "";
   for (const tool of VERTICAL_TOOLS) {
     const button = document.createElement("button");
-    button.className = appState.currentTool === tool.id ? "active" : "";
+    button.className = app.state.currentTool === tool.id ? "active" : "";
     button.title = tool.label;
     button.onclick = () => setCurrentTool(tool.id);
     const icon = document.createElement("i");
@@ -65,7 +66,7 @@ function renderVerticalTools() {
 function renderLayersList() {
   const layersList = document.getElementById("layers-list");
   layersList.innerHTML = "";
-  for (const layer of appState.layers) {
+  for (const layer of app.state.layers) {
     const li = document.createElement("li");
 
     const icon = document.createElement("i");
@@ -80,7 +81,7 @@ function renderLayersList() {
       if (!event.currentTarget.value.trim()) {
         text.value = layer.name;
       } else {
-        appState.layers = appState.layers.map((l) => {
+        app.state.layers = app.state.layers.map((l) => {
           if (l.id === layer.id) {
             layer.setName(event.currentTarget.value);
           }
@@ -100,28 +101,28 @@ function renderLayersList() {
 }
 
 function renderApp() {
-  console.log(appState.layers);
+  console.log(app.state.layers);
 
   clearCanvas(ctx);
   renderLayersList();
   renderVerticalTools();
-  for (const layer of appState.layers) {
+  for (const layer of app.state.layers) {
     layer.draw(ctx);
   }
 }
 
 function setCurrentTool(tool) {
-  appState.currentTool = tool;
-  appState.cursorState = {};
+  app.state.currentTool = tool;
+  app.state.cursorState = {};
   const canvasContainer = document.getElementById("canvas-container");
   const helperText = document.getElementById("helper-text");
   if (tool === "cursor") {
     helperText.innerText = "";
-    appState.isDrawing = false;
+    app.state.isDrawing = false;
     canvasContainer.style.cursor = "inherit";
   } else {
     helperText.innerText = HELPER_TEXT[tool];
-    appState.isDrawing = true;
+    app.state.isDrawing = true;
     canvasContainer.style.cursor = "crosshair";
   }
   renderVerticalTools();
@@ -157,101 +158,101 @@ canvas.addEventListener("mousemove", (event) => {
 });
 
 canvas.addEventListener("click", (event) => {
-  if (appState.currentTool === "addDot") {
+  if (app.state.currentTool === "addDot") {
     const { x, y } = getMousePos(event);
     const newName =
-      "Ponto " + appState.layers.filter((l) => l.type === "dot").length;
+      "Ponto " + app.state.layers.filter((l) => l.type === "dot").length;
     const rect = new Rect(RECT_TYPES.dot, newName, [x, y]);
-    appState.layers.push(rect);
+    app.state.layers.push(rect);
     renderApp();
   }
 
-  if (appState.currentTool === "addPolygon") {
+  if (app.state.currentTool === "addPolygon") {
     const { x, y } = getMousePos(event);
     const polygonPosition = [x, y];
-    if (!appState?.cursorState?.polygonPositions)
-      appState.cursorState = {
+    if (!app.state?.cursorState?.polygonPositions)
+      app.state.cursorState = {
         polygonPositions: [],
       };
 
-    appState.cursorState.polygonPositions.push(polygonPosition);
+    app.state.cursorState.polygonPositions.push(polygonPosition);
   }
 
-  if (appState.currentTool === "addLines") {
+  if (app.state.currentTool === "addLines") {
     const { x, y } = getMousePos(event);
     const linesPosition = [x, y];
-    if (!appState?.cursorState?.linesPositions)
-      appState.cursorState = {
+    if (!app.state?.cursorState?.linesPositions)
+      app.state.cursorState = {
         linesPositions: [],
       };
 
-    appState.cursorState.linesPositions.push(linesPosition);
+    app.state.cursorState.linesPositions.push(linesPosition);
   }
 });
 
 function keyDownEvents(event) {
   if (event.key === "Enter") {
-    if (appState.currentTool === "addPolygon") {
-      if (appState?.cursorState?.polygonPositions?.length < 3) {
+    if (app.state.currentTool === "addPolygon") {
+      if (app.state?.cursorState?.polygonPositions?.length < 3) {
         alert("Adicione pelo menos 3 pontos para criar um polígono");
         return;
       }
       const newName =
         "Polígono " +
-        appState.layers.filter((l) => l.type === "polygon").length;
+        app.state.layers.filter((l) => l.type === "polygon").length;
       const rect = new Rect(
         RECT_TYPES.polygon,
         newName,
-        appState.cursorState.polygonPositions
+        app.state.cursorState.polygonPositions
       );
-      appState.layers.push(rect);
-      appState.cursorState.polygonPositions = [];
+      app.state.layers.push(rect);
+      app.state.cursorState.polygonPositions = [];
       renderApp();
     }
-    if (appState.currentTool === "addLines") {
-      if (appState?.cursorState?.polygonPositions?.length < 3) {
+    if (app.state.currentTool === "addLines") {
+      if (app.state?.cursorState?.polygonPositions?.length < 3) {
         alert(
           "Adicione pelo menos 3 pontos para criar uma sequencia de linhas"
         );
         return;
       }
       const newName =
-        "Polilinha " + appState.layers.filter((l) => l.type === "lines").length;
+        "Polilinha " + app.state.layers.filter((l) => l.type === "lines").length;
       const rect = new Rect(
         RECT_TYPES.lines,
         newName,
-        appState.cursorState.linesPositions
+        app.state.cursorState.linesPositions
       );
-      appState.layers.push(rect);
-      appState.cursorState.linesPositions = [];
+      app.state.layers.push(rect);
+      app.state.cursorState.linesPositions = [];
       renderApp();
     }
   }
 }
 
 function startLine(event) {
-  if (appState.currentTool === "addLine") {
+  if (app.state.currentTool === "addLine") {
     const { x, y } = getMousePos(event);
 
-    appState.cursorState = { mousedownPosition: [x, y] };
+    app.state.cursorState = { mousedownPosition: [x, y] };
   }
 }
 
 function endLine(event) {
-  if (appState.currentTool === "addLine") {
+  if (app.state.currentTool === "addLine") {
     const { x, y } = getMousePos(event);
 
-    const startPosition = appState.cursorState?.mousedownPosition;
+    const startPosition = app.state.cursorState?.mousedownPosition;
     if (startPosition) {
       const endPosition = [x, y];
       const newName =
-        "Linha " + appState.layers.filter((l) => l.type === "line").length;
+        "Linha " + app.state.layers.filter((l) => l.type === "line").length;
       const rect = new Rect(RECT_TYPES.line, newName, [
         startPosition,
         endPosition,
       ]);
-      appState.layers.push(rect);
-      appState.cursorState = null;
+      app.state.layers.push(rect);
+      app.state.cursorState = null;
       renderApp();
     }
   }
