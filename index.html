@@ -212,7 +212,9 @@
         </ul>
         <img class="logo" src="./logo.png" alt="Blender" />
       </nav>
-      <div class="tools"></div>
+      <div class="tools">
+        <span id="helper-text"></span>
+      </div>
     </header>
     <main class="content">
       <div id="work-container">
@@ -236,18 +238,27 @@
     const RECT_TYPES = {
       dot: "dot",
       line: "line",
+      polygon: "polygon",
     }
     const ICONS = {
       cursor: "ph ph-cursor",
       dot: "ph-fill ph-dots-three-outline",
       trash: "ph ph-trash",
       line: "ph ph-line-segment",
+      polygon: "ph ph-polygon",
     }
     const VERTICAL_TOOLS = [
       { id: "cursor", icon: ICONS.cursor, label: "Cursor" },
       { id: "addDot", icon: ICONS.dot, label: "Adicionar ponto" },
       { id: "addLine", icon: ICONS.line, label: "Adicionar linha" },
+      { id: "addPolygon", icon: ICONS.polygon, label: "Adicionar polígono" },
     ]
+
+    const HELPER_TEXT = {
+      addDot: "Adicionar ponto: clique na tela para criar o ponto",
+      addLine: "Adicionar linha: Clique e arraste para criar uma linha",
+      addPolygon: "Adicionar polígono: Adicione pontos clicando na tela e pressione Enter",
+    }
 
     class Rect {
       constructor(type, name, position) {
@@ -272,7 +283,18 @@
           ctx.strokeStyle = 'black';
           ctx.lineWidth = 2;
           ctx.stroke();
-        } else {
+        } else if (this.type === RECT_TYPES.polygon) {
+          ctx.beginPath();
+          ctx.moveTo(this.position[0][0], this.position[0][1]);
+          for (let i = 1; i < this.position.length; i++) {
+            ctx.lineTo(this.position[i][0], this.position[i][1]);
+          }
+          ctx.closePath();
+          ctx.strokeStyle = 'black';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+        else {
           console.error("\"" + this.name + "\" has an unknown Rect type.")
         }
       }
@@ -282,13 +304,15 @@
       isDrawing: false,
       cursorState: null,
       layers: [
-        new Rect(RECT_TYPES.dot, "Ponto 1", [100, 100]),
-        new Rect(RECT_TYPES.dot, "Ponto 2", [100, -100]),
-        new Rect(RECT_TYPES.dot, "Ponto 3", [0, 0]),
-        new Rect(RECT_TYPES.dot, "Ponto 4", [-100, 100]),
-        new Rect(RECT_TYPES.dot, "Ponto 5", [-100, -100]),
-        new Rect(RECT_TYPES.line, "Linha 1", [[100, -100], [-100, -100]]),
-        new Rect(RECT_TYPES.line, "Linha 2", [[100, -100], [-100, 100]]),
+        // new Rect(RECT_TYPES.dot, "Ponto 1", [100, 100]),
+        // new Rect(RECT_TYPES.dot, "Ponto 2", [100, -100]),
+        // new Rect(RECT_TYPES.dot, "Ponto 3", [0, 0]),
+        // new Rect(RECT_TYPES.dot, "Ponto 4", [-100, 100]),
+        // new Rect(RECT_TYPES.dot, "Ponto 5", [-100, -100]),
+        // new Rect(RECT_TYPES.line, "Linha 1", [[100, -100], [-100, -100]]),
+        // new Rect(RECT_TYPES.line, "Linha 2", [[100, -100], [-100, 100]]),
+        new Rect(RECT_TYPES.polygon, "Polígono 2", [[0, 0], [0, -50], [-50, -50], [-50, 0], [-25, 25]]),
+        // new Rect(RECT_TYPES.polygon, "Polígono 2", [[100, -150], [-50, 100], [-200, 100], [-200, -200]]),
       ]
     }
 
@@ -363,11 +387,15 @@
 
     function setCurrentTool(tool) {
       appState.currentTool = tool;
+      appState.cursorState = {};
       const canvasContainer = document.getElementById('canvas-container');
+      const helperText = document.getElementById('helper-text');
       if (tool === "cursor") {
+        helperText.innerText = "";
         appState.isDrawing = false;
         canvasContainer.style.cursor = 'inherit';
       } else {
+        helperText.innerText = HELPER_TEXT[tool];
         appState.isDrawing = true;
         canvasContainer.style.cursor = 'crosshair';
       }
@@ -409,7 +437,34 @@
         appState.layers.push(rect);
         renderApp();
       }
+
+      if (appState.currentTool === "addPolygon") {
+        const { x, y } = getMousePos(event);
+        const polygonPosition = [x, y]
+        if (!appState?.cursorState?.polygonPositions)
+          appState.cursorState = {
+            polygonPositions: []
+          }
+
+        appState.cursorState.polygonPositions.push(polygonPosition);
+      }
     });
+
+    function keyDownEvents(event) {
+      if (appState.currentTool === "addPolygon") {
+        if (event.key === "Enter") {
+          if (appState?.cursorState?.polygonPositions?.length < 3) {
+            alert("Adicione pelo menos 3 pontos para criar um polígono");
+            return;
+          }
+          const newName = "Polígono " + appState.layers.filter(l => l.type === "polygon").length
+          const rect = new Rect(RECT_TYPES.polygon, newName, appState.cursorState.polygonPositions)
+          appState.layers.push(rect);
+          appState.cursorState.polygonPositions = [];
+          renderApp();
+        }
+      }
+    }
 
     function startLine(event) {
       if (appState.currentTool === "addLine") {
@@ -437,6 +492,7 @@
 
     canvas.addEventListener('mousedown', startLine);
     canvas.addEventListener('mouseup', endLine);
+    window.addEventListener('keydown', keyDownEvents);
 
     addEventListener("resize", () => {
       canvas.height = window.innerHeight - 64 - 23;
