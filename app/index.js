@@ -6,15 +6,10 @@ const appState = {
   isDrawing: false,
   cursorState: null,
   layers: [
-    // new Rect(RECT_TYPES.dot, "Ponto 1", [100, 100]),
-    // new Rect(RECT_TYPES.dot, "Ponto 2", [100, -100]),
-    // new Rect(RECT_TYPES.dot, "Ponto 3", [0, 0]),
-    // new Rect(RECT_TYPES.dot, "Ponto 4", [-100, 100]),
-    // new Rect(RECT_TYPES.dot, "Ponto 5", [-100, -100]),
-    // new Rect(RECT_TYPES.line, "Linha 1", [[100, -100], [-100, -100]]),
-    // new Rect(RECT_TYPES.line, "Linha 2", [[100, -100], [-100, 100]]),
-    new Rect(RECT_TYPES.polygon, "Polígono 2", [[0, 0], [0, -50], [-50, -50], [-50, 0], [-25, 25]]),
-    // new Rect(RECT_TYPES.polygon, "Polígono 2", [[100, -150], [-50, 100], [-200, 100], [-200, -200]]),
+    new Rect(RECT_TYPES.polygon, "Polígono 1", [[0, 0], [0, -50], [-50, -50], [-50, 0], [-25, 25]]),
+    new Rect(RECT_TYPES.polygon, "Polígono 2", [[0, 100], [0, 50], [-50, 50], [-50, 100], [-25, 125]]),
+    new Rect(RECT_TYPES.lines, "Polilinha 1", [[-100, 0], [-100, -50], [-150, -50], [-150, 0], [-125, 25]]),
+    new Rect(RECT_TYPES.lines, "Polilinha 2", [[-125, 125], [-100, 100], [-100, 50], [-150, 50], [-150, 100]]),
   ]
 }
 
