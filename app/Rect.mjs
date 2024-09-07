@@ -33,8 +33,16 @@ export class Rect {
       ctx.strokeStyle = 'black';
       ctx.lineWidth = 2;
       ctx.stroke();
-    }
-    else {
+    } else if (this.type === RECT_TYPES.lines) {
+      ctx.beginPath();
+      ctx.moveTo(this.position[0][0], this.position[0][1]);
+      for (let i = 1; i < this.position.length; i++) {
+        ctx.lineTo(this.position[i][0], this.position[i][1]);
+      }
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    } else {
       console.error("\"" + this.name + "\" has an unknown Rect type.")
     }
   }

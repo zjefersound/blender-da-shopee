@@ -29,6 +29,7 @@ function renderVerticalTools() {
   for (const tool of VERTICAL_TOOLS) {
     const button = document.createElement('button');
     button.className = appState.currentTool === tool.id ? "active" : "";
+    button.title = tool.label;
     button.onclick = () => setCurrentTool(tool.id)
     const icon = document.createElement('i');
     icon.className = tool.icon;
@@ -150,11 +151,22 @@ canvas.addEventListener('click', (event) => {
 
     appState.cursorState.polygonPositions.push(polygonPosition);
   }
+
+  if (appState.currentTool === "addLines") {
+    const { x, y } = getMousePos(event);
+    const linesPosition = [x, y]
+    if (!appState?.cursorState?.linesPositions)
+      appState.cursorState = {
+        linesPositions: []
+      }
+
+    appState.cursorState.linesPositions.push(linesPosition);
+  }
 });
 
 function keyDownEvents(event) {
-  if (appState.currentTool === "addPolygon") {
-    if (event.key === "Enter") {
+  if (event.key === "Enter") {
+    if (appState.currentTool === "addPolygon") {
       if (appState?.cursorState?.polygonPositions?.length < 3) {
         alert("Adicione pelo menos 3 pontos para criar um polígono");
         return;
@@ -163,6 +175,17 @@ function keyDownEvents(event) {
       const rect = new Rect(RECT_TYPES.polygon, newName, appState.cursorState.polygonPositions)
       appState.layers.push(rect);
       appState.cursorState.polygonPositions = [];
+      renderApp();
+    }
+    if (appState.currentTool === "addLines") {
+      if (appState?.cursorState?.polygonPositions?.length < 3) {
+        alert("Adicione pelo menos 3 pontos para criar uma sequencia de linhas");
+        return;
+      }
+      const newName = "Polilinha " + appState.layers.filter(l => l.type === "lines").length
+      const rect = new Rect(RECT_TYPES.lines, newName, appState.cursorState.linesPositions)
+      appState.layers.push(rect);
+      appState.cursorState.linesPositions = [];
       renderApp();
     }
   }
