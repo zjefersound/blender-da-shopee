@@ -20,6 +20,8 @@ export class Viewport {
     this.width = this.canvas.width;
     this.height = this.canvas.height;
 
+    this.scale = 1;
+
     this.resetTransform();
   }
 
@@ -44,15 +46,23 @@ export class Viewport {
   }
 
   applyTransform() {
-    this.ctx.setTransform(1, 0, 0, -1, this.offsetX + this.width / 2, this.offsetY + this.height / 2);
-    clearCanvas(this.ctx); // Clear the canvas with the new transformation
-    renderApp();           // Redraw the canvas content
+    this.ctx.setTransform(
+      this.scale,
+      0, 
+      0, 
+      -this.scale,
+      this.offsetX + this.width / 2, 
+      this.offsetY + this.height / 2
+    );
+    clearCanvas(this.ctx);
+    renderApp();
   }
 
   resetTransform() {
-    this.ctx.setTransform(1, 0, 0, -1, this.width / 2, this.height / 2);
+    this.scale = 1;
     this.offsetX = 0;
     this.offsetY = 0;
+    this.applyTransform();
   }
 
   updateSize() {
@@ -60,7 +70,13 @@ export class Viewport {
     this.height = this.canvas.height;
     this.applyTransform();
   }
+
+  zoom(factor) {
+    this.scale *= factor;
+    this.applyTransform();
+  }
 }
+
 
 
 const app = new App({
@@ -200,20 +216,16 @@ const W = ctx.canvas.width,
 clearCanvas(ctx);
 
 const viewport = new Viewport(ctx, canvas);
-
-// ctx.setTransform(2, 0, 0, 2, W / 2, H / 2); // zooms in by 2 with origin at center
-// ctx.setTransform(0.5, 0, 0, 0.5, W / 2, H / 2); // zooms out by 2 with origin at center
-
 function getMousePos(evt) {
   const rect = canvas.getBoundingClientRect();
-  const x = evt.clientX - rect.left - W / 2 - viewport.offsetX;
-  const y = -(evt.clientY - rect.top - H / 2 - viewport.offsetY);
+  const x = (evt.clientX - rect.left - viewport.width / 2 - viewport.offsetX) / viewport.scale;
+  const y = -(evt.clientY - rect.top - viewport.height / 2 - viewport.offsetY) / viewport.scale;
   return { x: x, y: y };
 }
 
 canvas.addEventListener("mousemove", (event) => {
   const { x, y } = getMousePos(event);
-  coordinatesDisplay.textContent = `Coordenadas: (${x}, ${y})`;
+  coordinatesDisplay.textContent = `Coordenadas: (${Math.round(x)}, ${Math.round(y)})`;
   if (app.state.currentTool === "cursor") {
     viewport.pan(event.clientX, event.clientY);
   }
@@ -338,3 +350,9 @@ addEventListener("resize", () => {
   viewport.updateSize();
 });
 renderApp();
+
+canvas.addEventListener("wheel", (event) => {
+  event.preventDefault();
+  const zoomFactor = event.deltaY < 0 ? 1.1 : 0.9;
+  viewport.zoom(zoomFactor);
+});
