@@ -7,6 +7,62 @@ import {
 } from "./constants.mjs";
 import { Rect } from "./Rect.mjs";
 
+export class Viewport {
+  constructor(ctx, canvas) {
+    this.ctx = ctx;
+    this.canvas = canvas;
+    this.offsetX = 0;
+    this.offsetY = 0;
+    this.startX = 0;
+    this.startY = 0;
+    this.isPanning = false;
+
+    this.width = this.canvas.width;
+    this.height = this.canvas.height;
+
+    this.resetTransform();
+  }
+
+  startPan(x, y) {
+    this.isPanning = true;
+    this.startX = x - this.offsetX;
+    this.startY = y - this.offsetY;
+    this.canvas.style.cursor = "grabbing";
+  }
+
+  pan(x, y) {
+    if (!this.isPanning) return;
+
+    this.offsetX = x - this.startX;
+    this.offsetY = y - this.startY;
+    this.applyTransform();
+  }
+
+  endPan() {
+    this.isPanning = false;
+    this.canvas.style.cursor = "grab";
+  }
+
+  applyTransform() {
+    this.ctx.setTransform(1, 0, 0, -1, this.offsetX + this.width / 2, this.offsetY + this.height / 2);
+    clearCanvas(this.ctx); // Clear the canvas with the new transformation
+    renderApp();           // Redraw the canvas content
+  }
+
+  resetTransform() {
+    this.ctx.setTransform(1, 0, 0, -1, this.width / 2, this.height / 2);
+    this.offsetX = 0;
+    this.offsetY = 0;
+  }
+
+  updateSize() {
+    this.width = this.canvas.width;
+    this.height = this.canvas.height;
+    this.applyTransform();
+  }
+}
+
+
 const app = new App({
   currentTool: VERTICAL_TOOLS[0].id,
   isDrawing: false,
@@ -132,9 +188,7 @@ function setCurrentTool(tool) {
 function clearCanvas(context) {
   const W = context.canvas.width,
     H = context.canvas.height;
-  context.setTransform(1, 0, 0, 1, 0, 0);
-  context.clearRect(0, 0, W, H);
-  context.setTransform(1, 0, 0, -1, W / 2, H / 2);
+  context.clearRect(-W / 2, -H / 2, W, H);
 }
 const coordinatesDisplay = document.getElementById("coordinates");
 const canvas = document.getElementById("blender-canvas");
@@ -145,18 +199,24 @@ const W = ctx.canvas.width,
   H = ctx.canvas.height;
 clearCanvas(ctx);
 
+const viewport = new Viewport(ctx, canvas);
+
 // ctx.setTransform(2, 0, 0, 2, W / 2, H / 2); // zooms in by 2 with origin at center
 // ctx.setTransform(0.5, 0, 0, 0.5, W / 2, H / 2); // zooms out by 2 with origin at center
 
 function getMousePos(evt) {
   const rect = canvas.getBoundingClientRect();
-  const x = evt.clientX - rect.left - W / 2;
-  const y = -(evt.clientY - rect.top - H / 2);
+  const x = evt.clientX - rect.left - W / 2 - viewport.offsetX;
+  const y = -(evt.clientY - rect.top - H / 2 - viewport.offsetY);
   return { x: x, y: y };
 }
+
 canvas.addEventListener("mousemove", (event) => {
   const { x, y } = getMousePos(event);
   coordinatesDisplay.textContent = `Coordenadas: (${x}, ${y})`;
+  if (app.state.currentTool === "cursor") {
+    viewport.pan(event.clientX, event.clientY);
+  }
 });
 
 canvas.addEventListener("click", (event) => {
@@ -255,15 +315,26 @@ function mouseUpEvents(event) {
   }
 }
 
-canvas.addEventListener("mousedown", mouseDownEvents);
-canvas.addEventListener("mouseup", mouseUpEvents);
+canvas.addEventListener("mousedown", (event) => {
+  if (app.state.currentTool === "cursor") {
+    viewport.startPan(event.clientX, event.clientY);
+  } else {
+    mouseDownEvents(event);
+  }
+});
+canvas.addEventListener("mouseup", (event) => {
+  if (app.state.currentTool === "cursor") {
+    viewport.endPan();
+  } else {
+    mouseUpEvents(event);
+  }
+});
 addEventListener("keydown", keyDownEvents);
 
 addEventListener("resize", () => {
   canvas.height = window.innerHeight - 64 - 23;
   canvas.width = window.innerWidth - 280;
 
-  clearCanvas(ctx);
-  renderApp();
+  viewport.updateSize();
 });
 renderApp();
