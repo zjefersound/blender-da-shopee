@@ -182,3 +182,42 @@ body {
 #vertical-tools button:active {
   background: #555;
 }
+
+.modal {
+  display: none;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: #444;
+  padding: 20px;
+  width: 300px;
+  margin: auto;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.modal.show {
+  display: flex;
+}
+
+.btn {
+  padding: 4px 12px;
+}
+
+#edit-form {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 0;
+  gap: 8px;
+}

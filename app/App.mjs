@@ -1,19 +1,37 @@
+import { Modal } from "./components/Modal.mjs";
 import { HELPER_TEXT, ICONS, VERTICAL_TOOLS } from "./constants.mjs";
 import { Layers } from "./Layers.mjs";
 
 export class App {
   constructor({
+    ctx,
     currentTool = VERTICAL_TOOLS[0].id,
+    grid,
     isDrawing = false,
     cursorState = null,
     layers = [],
   }) {
+    this.ctx = ctx;
+    this.grid = grid;
     this.state = {
       currentTool: currentTool,
       isDrawing: isDrawing,
       cursorState: cursorState,
       layers: new Layers(layers),
     };
+
+    this.modal = new Modal();
+    this.modal.setOnSaveCallback(() => {
+      this.renderLayersList();
+      this.drawLayers();
+    });
+  }
+
+  drawLayers() {
+    this.grid.drawGrid(this.ctx);
+    for (const layer of this.state.layers.getItems()) {
+      layer.draw(this.ctx);
+    }
   }
 
   setCurrentTool(tool) {
@@ -82,6 +100,12 @@ export class App {
         }
       };
       li.appendChild(text);
+
+      const editButton = document.createElement("button");
+      editButton.className = "edit-button";
+      editButton.innerText = "Edit";
+      editButton.onclick = () => this.modal.open(layer);
+      li.appendChild(editButton);
 
       const deleteButton = document.createElement("button");
       deleteButton.className = `${ICONS.trash} delete-button`;

@@ -7,6 +7,10 @@ export class Rect extends Layer {
     this.position = position;
   }
 
+  setPosition(position) {
+    this.position = position;
+  }
+
   rotate(degrees) {
     const angle = (-degrees * Math.PI) / 180;
     const center = this.getCenter();

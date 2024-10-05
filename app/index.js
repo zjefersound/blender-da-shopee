@@ -1,25 +1,30 @@
 import { App } from "./App.mjs";
 import { CanvasGrid } from "./CanvasGrid.mjs";
-import { ICONS, RECT_TYPES, VERTICAL_TOOLS } from "./constants.mjs";
+import { RECT_TYPES, VERTICAL_TOOLS } from "./constants.mjs";
 import { Rect } from "./Rect.mjs";
 import { Viewport } from "./Viewport.mjs";
 
-const rect1 = new Rect(RECT_TYPES.polygon, "Polígono 1", [
-  [0, 0],
-  [0, -50],
-  [-50, -50],
-  [-50, 0],
-  [-25, 25],
-]);
+const coordinatesDisplay = document.getElementById("coordinates");
+const canvas = document.getElementById("blender-canvas");
+let ctx = canvas.getContext("2d");
+canvas.height = window.innerHeight - 64 - 23;
+canvas.width = window.innerWidth - 280;
 
-rect1.rotateOrigin(180);
-
+const grid = new CanvasGrid(canvas, 1, [0, 0]);
 const app = new App({
+  ctx,
+  grid,
   currentTool: VERTICAL_TOOLS[0].id,
   isDrawing: false,
   cursorState: null,
   layers: [
-    rect1,
+    new Rect(RECT_TYPES.polygon, "Polígono 1", [
+      [0, 0],
+      [0, -50],
+      [-50, -50],
+      [-50, 0],
+      [-25, 25],
+    ]),
     new Rect(RECT_TYPES.polygon, "Polígono 2", [
       [0, 100],
       [0, 50],
@@ -44,28 +49,11 @@ const app = new App({
   ],
 });
 
-function drawLayers() {
-  console.log(app.state.layers);
-  // grid.setZoomAndPan(zoom, panOffset);
-  grid.drawGrid(ctx);
-  for (const layer of app.state.layers.getItems()) {
-    layer.draw(ctx);
-  }
-}
-
 function renderApp() {
   app.renderLayersList();
   app.renderVerticalTools();
-  drawLayers();
+  app.drawLayers();
 }
-
-const coordinatesDisplay = document.getElementById("coordinates");
-const canvas = document.getElementById("blender-canvas");
-var ctx = canvas.getContext("2d");
-canvas.height = window.innerHeight - 64 - 23;
-canvas.width = window.innerWidth - 280;
-
-const grid = new CanvasGrid(canvas, 1, [0, 0]);
 const viewport = new Viewport(ctx, canvas, renderApp);
 
 function getMousePos(evt) {
