@@ -7,86 +7,7 @@ import {
   VERTICAL_TOOLS,
 } from "./constants.mjs";
 import { Rect } from "./Rect.mjs";
-
-export class Viewport {
-  constructor(ctx, canvas) {
-    this.ctx = ctx;
-    this.canvas = canvas;
-    this.offsetX = 0;
-    this.offsetY = 0;
-    this.startX = 0;
-    this.startY = 0;
-    this.isPanning = false;
-
-    this.width = this.canvas.width;
-    this.height = this.canvas.height;
-
-    this.scale = 1;
-
-    this.resetTransform();
-  }
-
-  startPan(x, y) {
-    this.isPanning = true;
-    this.startX = x - this.offsetX;
-    this.startY = y - this.offsetY;
-    this.canvas.style.cursor = "grabbing";
-  }
-
-  pan(x, y) {
-    if (!this.isPanning) return;
-
-    this.offsetX = x - this.startX;
-    this.offsetY = y - this.startY;
-    this.applyTransform();
-  }
-
-  endPan() {
-    this.isPanning = false;
-    this.canvas.style.cursor = "grab";
-  }
-
-  clearCanvas(ctx) {
-    ctx.save();
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    const width = ctx.canvas.width;
-    const height = ctx.canvas.height;
-    ctx.clearRect(0, 0, width, height);
-    ctx.restore();
-  }
-
-  applyTransform() {
-    this.clearCanvas(this.ctx);
-    this.ctx.save();
-    this.ctx.setTransform(
-      this.scale,
-      0,
-      0,
-      -this.scale,
-      this.offsetX + this.width / 2,
-      this.offsetY + this.height / 2
-    );
-    renderApp();
-  }
-
-  resetTransform() {
-    this.scale = 1;
-    this.offsetX = 0;
-    this.offsetY = 0;
-    this.applyTransform();
-  }
-
-  updateSize() {
-    this.width = this.canvas.width;
-    this.height = this.canvas.height;
-    this.applyTransform();
-  }
-
-  zoom(factor) {
-    this.scale *= factor;
-    this.applyTransform();
-  }
-}
+import { Viewport } from "./Viewport.mjs";
 
 const rect1 = new Rect(RECT_TYPES.polygon, "Polígono 1", [
   [0, 0],
@@ -127,6 +48,17 @@ const app = new App({
     ]),
   ],
 });
+
+function renderApp() {
+  console.log(app.state.layers);
+  // grid.setZoomAndPan(zoom, panOffset);
+  grid.drawGrid(ctx);
+  renderLayersList();
+  renderVerticalTools();
+  for (const layer of app.state.layers.getItems()) {
+    layer.draw(ctx);
+  }
+}
 
 function removeLayer(id) {
   app.state.layers.remove(id);
@@ -187,17 +119,6 @@ function renderLayersList() {
   }
 }
 
-function renderApp() {
-  console.log(app.state.layers);
-  // grid.setZoomAndPan(zoom, panOffset);
-  grid.drawGrid(ctx);
-  renderLayersList();
-  renderVerticalTools();
-  for (const layer of app.state.layers.getItems()) {
-    layer.draw(ctx);
-  }
-}
-
 function setCurrentTool(tool) {
   app.state.currentTool = tool;
   app.state.cursorState = {};
@@ -222,8 +143,8 @@ canvas.height = window.innerHeight - 64 - 23;
 canvas.width = window.innerWidth - 280;
 
 const grid = new CanvasGrid(canvas, 1, [0, 0]);
+const viewport = new Viewport(ctx, canvas, renderApp);
 
-const viewport = new Viewport(ctx, canvas);
 function getMousePos(evt) {
   const rect = canvas.getBoundingClientRect();
   const x =
@@ -363,8 +284,6 @@ addEventListener("resize", () => {
 
   viewport.updateSize();
 });
-renderApp();
-
 canvas.addEventListener("wheel", (event) => {
   event.preventDefault();
   const zoomFactor = event.deltaY < 0 ? 1.1 : 0.9;
