@@ -77,20 +77,22 @@ export class Viewport {
   }
 }
 
+const rect1 = new Rect(RECT_TYPES.polygon, "Polígono 1", [
+  [0, 0],
+  [0, -50],
+  [-50, -50],
+  [-50, 0],
+  [-25, 25],
+])
 
+rect1.rotateOrigin(180);
 
 const app = new App({
   currentTool: VERTICAL_TOOLS[0].id,
   isDrawing: false,
   cursorState: null,
   layers: [
-    new Rect(RECT_TYPES.polygon, "Polígono 1", [
-      [0, 0],
-      [0, -50],
-      [-50, -50],
-      [-50, 0],
-      [-25, 25],
-    ]),
+    rect1,
     new Rect(RECT_TYPES.polygon, "Polígono 2", [
       [0, 100],
       [0, 50],
@@ -211,8 +213,6 @@ const canvas = document.getElementById("blender-canvas");
 var ctx = canvas.getContext("2d");
 canvas.height = window.innerHeight - 64 - 23;
 canvas.width = window.innerWidth - 280;
-const W = ctx.canvas.width,
-  H = ctx.canvas.height;
 clearCanvas(ctx);
 
 const viewport = new Viewport(ctx, canvas);

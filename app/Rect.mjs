@@ -7,6 +7,46 @@ export class Rect extends Layer {
     this.position = position;
   }
 
+  rotate(degrees) {
+    const angle = (-degrees * Math.PI) / 180;
+    const center = this.getCenter();
+
+    this.position = this.position.map((point) =>
+      this.rotatePoint(point, center, angle)
+    );
+  }
+
+  rotateOrigin(degrees) {
+    const angle = (-degrees * Math.PI) / 180;
+    const center = [0, 0];
+
+    this.position = this.position.map((point) =>
+      this.rotatePoint(point, center, angle)
+    );
+  }
+
+  rotatePoint(point, center, angle) {
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    const [x, y] = point;
+    const [cx, cy] = center;
+
+    const newX = cos * (x - cx) - sin * (y - cy) + cx;
+    const newY = sin * (x - cx) + cos * (y - cy) + cy;
+
+    return [newX, newY];
+  }
+
+  getCenter() {
+    let sumX = 0,
+      sumY = 0;
+    for (let point of this.position) {
+      sumX += point[0];
+      sumY += point[1];
+    }
+    return [sumX / this.position.length, sumY / this.position.length];
+  }
+
   draw(ctx) {
     if (this.type === RECT_TYPES.dot) {
       ctx.beginPath();
