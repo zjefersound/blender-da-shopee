@@ -1,11 +1,6 @@
 import { App } from "./App.mjs";
 import { CanvasGrid } from "./CanvasGrid.mjs";
-import {
-  HELPER_TEXT,
-  ICONS,
-  RECT_TYPES,
-  VERTICAL_TOOLS,
-} from "./constants.mjs";
+import { ICONS, RECT_TYPES, VERTICAL_TOOLS } from "./constants.mjs";
 import { Rect } from "./Rect.mjs";
 import { Viewport } from "./Viewport.mjs";
 
@@ -49,91 +44,19 @@ const app = new App({
   ],
 });
 
-function renderApp() {
+function drawLayers() {
   console.log(app.state.layers);
   // grid.setZoomAndPan(zoom, panOffset);
   grid.drawGrid(ctx);
-  renderLayersList();
-  renderVerticalTools();
   for (const layer of app.state.layers.getItems()) {
     layer.draw(ctx);
   }
 }
 
-function removeLayer(id) {
-  app.state.layers.remove(id);
-  renderApp();
-}
-
-function renderVerticalTools() {
-  const verticalTools = document.getElementById("vertical-tools");
-  verticalTools.innerHTML = "";
-  for (const tool of VERTICAL_TOOLS) {
-    const button = document.createElement("button");
-    button.className = app.state.currentTool === tool.id ? "active" : "";
-    button.title = tool.label;
-    button.onclick = () => setCurrentTool(tool.id);
-    const icon = document.createElement("i");
-    icon.className = tool.icon;
-    button.appendChild(icon);
-    verticalTools.appendChild(button);
-  }
-}
-
-function renderLayersList() {
-  const layersList = document.getElementById("layers-list");
-  layersList.innerHTML = "";
-  for (const layer of app.state.layers.getItems()) {
-    const li = document.createElement("li");
-
-    const icon = document.createElement("i");
-    icon.className = ICONS[layer.type];
-    li.appendChild(icon);
-
-    const text = document.createElement("input");
-    text.id = "layer-input-" + layer.id;
-    text.value = layer.name;
-    text.onblur = (event) => {
-      console.log(event.currentTarget.value.trim());
-      if (!event.currentTarget.value.trim()) {
-        text.value = layer.name;
-      } else {
-        app.state.layers.setItems(
-          app.state.layers.getItems().map((l) => {
-            if (l.id === layer.id) {
-              layer.setName(event.currentTarget.value);
-            }
-            return l;
-          })
-        );
-      }
-    };
-    li.appendChild(text);
-
-    const deleteButton = document.createElement("button");
-    deleteButton.className = `${ICONS.trash} delete-button`;
-    deleteButton.onclick = () => removeLayer(layer.id);
-    li.appendChild(deleteButton);
-
-    layersList.appendChild(li);
-  }
-}
-
-function setCurrentTool(tool) {
-  app.state.currentTool = tool;
-  app.state.cursorState = {};
-  const canvasContainer = document.getElementById("canvas-container");
-  const helperText = document.getElementById("helper-text");
-  if (tool === "cursor") {
-    helperText.innerText = "";
-    app.state.isDrawing = false;
-    canvasContainer.style.cursor = "inherit";
-  } else {
-    helperText.innerText = HELPER_TEXT[tool];
-    app.state.isDrawing = true;
-    canvasContainer.style.cursor = "crosshair";
-  }
-  renderVerticalTools();
+function renderApp() {
+  app.renderLayersList();
+  app.renderVerticalTools();
+  drawLayers();
 }
 
 const coordinatesDisplay = document.getElementById("coordinates");
