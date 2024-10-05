@@ -1,4 +1,5 @@
 import { App } from "./App.mjs";
+import { CanvasGrid } from "./CanvasGrid.mjs";
 import {
   HELPER_TEXT,
   ICONS,
@@ -45,16 +46,26 @@ export class Viewport {
     this.canvas.style.cursor = "grab";
   }
 
+  clearCanvas(ctx) {
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    const width = ctx.canvas.width;
+    const height = ctx.canvas.height;
+    ctx.clearRect(0, 0, width, height);
+    ctx.restore();
+  }
+
   applyTransform() {
+    this.clearCanvas(this.ctx);
+    this.ctx.save();
     this.ctx.setTransform(
       this.scale,
-      0, 
-      0, 
+      0,
+      0,
       -this.scale,
-      this.offsetX + this.width / 2, 
+      this.offsetX + this.width / 2,
       this.offsetY + this.height / 2
     );
-    clearCanvas(this.ctx);
     renderApp();
   }
 
@@ -83,7 +94,7 @@ const rect1 = new Rect(RECT_TYPES.polygon, "Polígono 1", [
   [-50, -50],
   [-50, 0],
   [-25, 25],
-])
+]);
 
 rect1.rotateOrigin(180);
 
@@ -178,8 +189,8 @@ function renderLayersList() {
 
 function renderApp() {
   console.log(app.state.layers);
-
-  clearCanvas(ctx);
+  // grid.setZoomAndPan(zoom, panOffset);
+  grid.drawGrid(ctx);
   renderLayersList();
   renderVerticalTools();
   for (const layer of app.state.layers.getItems()) {
@@ -203,29 +214,32 @@ function setCurrentTool(tool) {
   }
   renderVerticalTools();
 }
-function clearCanvas(context) {
-  const W = context.canvas.width,
-    H = context.canvas.height;
-  context.clearRect(-W / 2, -H / 2, W, H);
-}
+
 const coordinatesDisplay = document.getElementById("coordinates");
 const canvas = document.getElementById("blender-canvas");
 var ctx = canvas.getContext("2d");
 canvas.height = window.innerHeight - 64 - 23;
 canvas.width = window.innerWidth - 280;
-clearCanvas(ctx);
+
+const grid = new CanvasGrid(canvas, 1, [0, 0]);
 
 const viewport = new Viewport(ctx, canvas);
 function getMousePos(evt) {
   const rect = canvas.getBoundingClientRect();
-  const x = (evt.clientX - rect.left - viewport.width / 2 - viewport.offsetX) / viewport.scale;
-  const y = -(evt.clientY - rect.top - viewport.height / 2 - viewport.offsetY) / viewport.scale;
+  const x =
+    (evt.clientX - rect.left - viewport.width / 2 - viewport.offsetX) /
+    viewport.scale;
+  const y =
+    -(evt.clientY - rect.top - viewport.height / 2 - viewport.offsetY) /
+    viewport.scale;
   return { x: x, y: y };
 }
 
 canvas.addEventListener("mousemove", (event) => {
   const { x, y } = getMousePos(event);
-  coordinatesDisplay.textContent = `Coordenadas: (${Math.round(x)}, ${Math.round(y)})`;
+  coordinatesDisplay.textContent = `Coordenadas: (${Math.round(
+    x
+  )}, ${Math.round(y)})`;
   if (app.state.currentTool === "cursor") {
     viewport.pan(event.clientX, event.clientY);
   }
@@ -355,4 +369,6 @@ canvas.addEventListener("wheel", (event) => {
   event.preventDefault();
   const zoomFactor = event.deltaY < 0 ? 1.1 : 0.9;
   viewport.zoom(zoomFactor);
+  grid.setZoomAndPan(zoom, panOffset);
+  grid.drawGrid(ctx);
 });
