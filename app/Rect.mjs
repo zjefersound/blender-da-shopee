@@ -66,6 +66,25 @@ export class Rect extends Layer {
     this.position = this.position.map(translatePoint);
   }
 
+  scale(horizontalScale, verticalScale) {
+    const center = this.getCenter();
+
+    const scalePoint = (point) => {
+      if (Array.isArray(point[0])) {
+        return point.map(innerPoint => scalePoint(innerPoint));
+      } else {
+        const [x, y] = point;
+        const [cx, cy] = center;
+
+        const newX = cx + (x - cx) * horizontalScale;
+        const newY = cy + (y - cy) * verticalScale;
+
+        return [newX, newY];
+      }
+    };
+
+    this.position = this.position.map(scalePoint);
+  }
 
   draw(ctx) {
     if (this.type === RECT_TYPES.dot) {

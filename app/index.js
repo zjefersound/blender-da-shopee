@@ -19,6 +19,7 @@ const testItem = new Rect(RECT_TYPES.polygon, "Polígono 1", [
 ])
 
 testItem.translate(-10,-30)
+testItem.scale(2,2)
 
 const grid = new CanvasGrid(canvas, 1, [0, 0]);
 const app = new App({
