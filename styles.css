@@ -132,18 +132,23 @@ body {
   background: #444444;
 }
 
+.layers-list .edit-button,
 .layers-list .delete-button {
   background: none;
   color: #eee;
   border: 0;
-  margin-left: auto;
   font-size: 16px;
   cursor: pointer;
   border-radius: 4px;
 }
 
+.layers-list .edit-button:hover,
 .layers-list .delete-button:hover {
   background: #555;
+}
+
+.layers-list .edit-button {
+  margin-left: auto;
 }
 
 #vertical-tools {

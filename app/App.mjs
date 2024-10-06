@@ -1,6 +1,7 @@
 import { Modal } from "./components/Modal.mjs";
 import { HELPER_TEXT, ICONS, VERTICAL_TOOLS } from "./constants.mjs";
 import { Layers } from "./Layers.mjs";
+import { clearCanvas } from "./utils/clearCanvas.mjs";
 
 export class App {
   constructor({
@@ -22,6 +23,7 @@ export class App {
 
     this.modal = new Modal();
     this.modal.setOnSaveCallback(() => {
+      clearCanvas(this.ctx)
       this.renderLayersList();
       this.drawLayers();
     });
@@ -102,8 +104,7 @@ export class App {
       li.appendChild(text);
 
       const editButton = document.createElement("button");
-      editButton.className = "edit-button";
-      editButton.innerText = "Edit";
+      editButton.className = `${ICONS.edit} edit-button`;
       editButton.onclick = () => this.modal.open(layer);
       li.appendChild(editButton);
 

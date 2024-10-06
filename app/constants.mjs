@@ -15,6 +15,7 @@ export const LAYER_NAMES = {
 export const ICONS = {
   cursor: "ph ph-cursor",
   dot: "ph-fill ph-dots-three-outline",
+  edit: "ph ph-pencil",
   trash: "ph ph-trash",
   line: "ph ph-line-segment",
   lines: "ph ph-line-segments",

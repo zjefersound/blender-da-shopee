@@ -1,12 +1,25 @@
 import { LAYER_NAMES } from "../constants.mjs";
 
+/**
+ * I need to:
+ * Add translation
+ * Add rotation: around itself + around canvas origin (0,0)
+ * Add scaling (vertical, horizontal)
+ */
 export class Modal {
   constructor() {
     this.modalElement = null;
+    this.state = {
+      rotationDegrees: 60,
+      rotationAroundOrigin: false,
+      translateX: 0,
+      translateY: 0,
+      scaleX: 0,
+      scaleY: 0,
+    };
     this.initializeModal();
   }
 
-  // Method to initialize and create the modal structure
   initializeModal() {
     // Create modal container
     this.modalElement = document.createElement("div");
@@ -18,39 +31,12 @@ export class Modal {
     modalContent.className = "modal-content";
 
     const modalTitle = document.createElement("h4");
-    modalTitle.innerText = "Edit Layer";
+    modalTitle.innerText = "Editar camada";
 
     // Create form for editing layer
     const editForm = document.createElement("form");
     editForm.id = "edit-form";
 
-    // Name field
-    const nameLabel = document.createElement("label");
-    nameLabel.setAttribute("for", "edit-name");
-    nameLabel.innerText = "Name:";
-    const nameInput = document.createElement("input");
-    nameInput.type = "text";
-    nameInput.id = "edit-name";
-
-    // Type field (Select dropdown for RECT_TYPES)
-    const typeLabel = document.createElement("label");
-    typeLabel.setAttribute("for", "edit-type");
-    typeLabel.innerText = "Type:";
-    const typeSelect = document.createElement("select");
-    typeSelect.id = "edit-type";
-
-    for (const [type, name] of Object.entries(LAYER_NAMES)) {
-      const option = document.createElement("option");
-      option.value = type;
-      option.innerText = name;
-      typeSelect.appendChild(option);
-    }
-
-    // Append fields to form
-    editForm.appendChild(nameLabel);
-    editForm.appendChild(nameInput);
-    editForm.appendChild(typeLabel);
-    editForm.appendChild(typeSelect);
 
     const modalFooter = document.createElement("div");
     modalFooter.className = "modal-footer";
@@ -58,7 +44,7 @@ export class Modal {
     const saveButton = document.createElement("button");
     saveButton.id = "save-edit";
     saveButton.className = "modal-close btn";
-    saveButton.innerText = "Save";
+    saveButton.innerText = "Salvar";
 
     const cancelButton = document.createElement("button");
     cancelButton.id = "cancel-edit";
@@ -73,7 +59,7 @@ export class Modal {
     modalContent.appendChild(modalFooter);
     this.modalElement.appendChild(modalContent);
 
-    document.body.appendChild(this.modalElement); // Append modal to body
+    document.body.appendChild(this.modalElement);
 
     this.modalElement.style.display = "none";
     saveButton.addEventListener("click", () => this.handleSave());
@@ -91,6 +77,17 @@ export class Modal {
 
   handleSave() {
     if (!this.currentLayer) return;
+
+    // translation
+    if (this.state.scaleX !== 0 || this.state.scaleY !== 0)
+      this.currentLayer.scale(this.state.scaleX, this.state.scaleY);
+    if (this.state.translateX !== 0 || this.state.translateY !== 0)
+      this.currentLayer.translate(this.state.translateX, this.state.translateY);
+    if (this.state.rotationDegrees) {
+      if (this.state.rotationAroundOrigin) this.currentLayer.rotateOrigin(this.state.rotationDegrees);
+      else this.currentLayer.rotate(this.state.rotationDegrees);
+    }
+
     this.currentLayer.setName('updated. TODO: add logic')
 
     this.close();

@@ -1,3 +1,5 @@
+import { clearCanvas } from "./utils/clearCanvas.mjs";
+
 export class Viewport {
   constructor(ctx, canvas, renderApp) {
     this.ctx = ctx;
@@ -37,17 +39,8 @@ export class Viewport {
     this.canvas.style.cursor = "grab";
   }
 
-  clearCanvas(ctx) {
-    ctx.save();
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    const width = ctx.canvas.width;
-    const height = ctx.canvas.height;
-    ctx.clearRect(0, 0, width, height);
-    ctx.restore();
-  }
-
   applyTransform() {
-    this.clearCanvas(this.ctx);
+    clearCanvas(this.ctx);
     this.ctx.save();
     this.ctx.setTransform(
       this.scale,
