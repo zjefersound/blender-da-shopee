@@ -203,8 +203,9 @@ body {
 .modal-content {
   background-color: #444;
   padding: 20px;
-  width: 300px;
+  width: 360px;
   margin: auto;
+  border-radius: 4px;
 }
 
 .modal-footer {
@@ -218,6 +219,38 @@ body {
 
 .btn {
   padding: 4px 12px;
+  background: #2f2f2f;
+  color: white;
+
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn + .btn {
+  margin-left: 4px;
+}
+
+.modal-save {
+  background: rgb(216, 216, 216);
+  color: #000;
+}
+
+.form-control {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.form-control label {
+  font-size: 14px;
+}
+.form-control input {
+  background: #2e2e2e;
+  color: #eee;
+  padding: 4px;
+  border: 0;
+  border-radius: 4px;
 }
 
 #edit-form {

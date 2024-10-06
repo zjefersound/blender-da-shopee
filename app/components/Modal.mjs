@@ -63,7 +63,7 @@ export class Modal {
 
     const saveButton = document.createElement("button");
     saveButton.id = "save-edit";
-    saveButton.className = "modal-close btn";
+    saveButton.className = "modal-save btn";
     saveButton.innerText = "Salvar";
 
     const cancelButton = document.createElement("button");
@@ -88,6 +88,7 @@ export class Modal {
 
   createInputField(stateKey, label, type = "text", defaultValue = "") {
     const container = document.createElement("div");
+    container.className = 'form-control';
     const labelElement = document.createElement("label");
     labelElement.innerText = label;
 
@@ -109,6 +110,7 @@ export class Modal {
 
   createCheckboxField(stateKey, label) {
     const container = document.createElement("div");
+    container.className = 'form-checkbox';
     const labelElement = document.createElement("label");
     labelElement.innerText = label;
 
