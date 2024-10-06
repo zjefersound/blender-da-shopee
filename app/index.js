@@ -10,6 +10,16 @@ let ctx = canvas.getContext("2d");
 canvas.height = window.innerHeight - 64 - 23;
 canvas.width = window.innerWidth - 280;
 
+const testItem = new Rect(RECT_TYPES.polygon, "Polígono 1", [
+  [0, 0],
+  [0, -50],
+  [-50, -50],
+  [-50, 0],
+  [-25, 25],
+])
+
+testItem.translate(-10,-30)
+
 const grid = new CanvasGrid(canvas, 1, [0, 0]);
 const app = new App({
   ctx,
@@ -18,6 +28,7 @@ const app = new App({
   isDrawing: false,
   cursorState: null,
   layers: [
+    testItem,
     new Rect(RECT_TYPES.polygon, "Polígono 1", [
       [0, 0],
       [0, -50],

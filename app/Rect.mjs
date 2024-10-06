@@ -51,6 +51,22 @@ export class Rect extends Layer {
     return [sumX / this.position.length, sumY / this.position.length];
   }
 
+  translate(dx, dy) {
+    const translatePoint = (point) => {
+      if (Array.isArray(point[0])) {
+        // Recursive case: If the point is an array of points (polygon or multiple lines)
+        return point.map(innerPoint => translatePoint(innerPoint));
+      } else {
+        // Base case: translate a single point [x, y]
+        const [x, y] = point;
+        return [x + dx, y + dy];
+      }
+    };
+
+    this.position = this.position.map(translatePoint);
+  }
+
+
   draw(ctx) {
     if (this.type === RECT_TYPES.dot) {
       ctx.beginPath();
