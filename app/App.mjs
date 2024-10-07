@@ -23,7 +23,7 @@ export class App {
 
     this.modal = new Modal();
     this.modal.setOnSaveCallback(() => {
-      clearCanvas(this.ctx)
+      clearCanvas(this.ctx);
       this.renderLayersList();
       this.drawLayers();
     });
@@ -70,7 +70,9 @@ export class App {
 
   removeLayer(id) {
     this.state.layers.remove(id);
-    renderApp();
+    clearCanvas(this.ctx);
+    this.renderLayersList();
+    this.drawLayers();
   }
 
   renderLayersList() {
@@ -110,7 +112,7 @@ export class App {
 
       const deleteButton = document.createElement("button");
       deleteButton.className = `${ICONS.trash} delete-button`;
-      deleteButton.onclick = () => removeLayer(layer.id);
+      deleteButton.onclick = () => this.removeLayer(layer.id);
       li.appendChild(deleteButton);
 
       layersList.appendChild(li);
