@@ -52,14 +52,26 @@ export class Rect extends Layer {
   }
 
   translate(dx, dy) {
+    const translationMatrix = [
+      [1, 0, dx],
+      [0, 1, dy],
+      [0, 0, 1],
+    ];
+
     const translatePoint = (point) => {
       if (Array.isArray(point[0])) {
-        // Recursive case: If the point is an array of points (polygon or multiple lines)
-        return point.map(innerPoint => translatePoint(innerPoint));
+        return point.map((innerPoint) => translatePoint(innerPoint));
       } else {
-        // Base case: translate a single point [x, y]
         const [x, y] = point;
-        return [x + dx, y + dy];
+        const newX =
+          translationMatrix[0][0] * x +
+          translationMatrix[0][1] * y +
+          translationMatrix[0][2];
+        const newY =
+          translationMatrix[1][0] * x +
+          translationMatrix[1][1] * y +
+          translationMatrix[1][2];
+        return [newX, newY];
       }
     };
 
@@ -71,7 +83,7 @@ export class Rect extends Layer {
 
     const scalePoint = (point) => {
       if (Array.isArray(point[0])) {
-        return point.map(innerPoint => scalePoint(innerPoint));
+        return point.map((innerPoint) => scalePoint(innerPoint));
       } else {
         const [x, y] = point;
         const [cx, cy] = center;
