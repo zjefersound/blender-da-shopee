@@ -12,33 +12,49 @@ export class Rect extends Layer {
   }
 
   rotate(degrees) {
-    const angle = (-degrees * Math.PI) / 180;
+    const angle = (degrees * Math.PI) / 180;
     const center = this.getCenter();
 
+    const rotationMatrix = [
+      [Math.cos(angle), -Math.sin(angle), 0],
+      [Math.sin(angle), Math.cos(angle), 0],
+      [0, 0, 1],
+    ];
+
+    // Rotate around center
     this.position = this.position.map((point) =>
-      this.rotatePoint(point, center, angle)
+      this.transformPoint(point, center, rotationMatrix)
     );
   }
 
   rotateOrigin(degrees) {
-    const angle = (-degrees * Math.PI) / 180;
-    const center = [0, 0];
+    const angle = (degrees * Math.PI) / 180;
 
+    const rotationMatrix = [
+      [Math.cos(angle), -Math.sin(angle), 0],
+      [Math.sin(angle), Math.cos(angle), 0],
+      [0, 0, 1],
+    ];
+
+    // Rotate around (0,0)
     this.position = this.position.map((point) =>
-      this.rotatePoint(point, center, angle)
+      this.transformPoint(point, [0, 0], rotationMatrix)
     );
   }
 
-  rotatePoint(point, center, angle) {
-    const cos = Math.cos(angle);
-    const sin = Math.sin(angle);
+  transformPoint(point, translation, matrix) {
     const [x, y] = point;
-    const [cx, cy] = center;
+    const [tx, ty] = translation;
 
-    const newX = cos * (x - cx) - sin * (y - cy) + cx;
-    const newY = sin * (x - cx) + cos * (y - cy) + cy;
+    const translatedX = x - tx;
+    const translatedY = y - ty;
 
-    return [newX, newY];
+    const newX =
+      matrix[0][0] * translatedX + matrix[0][1] * translatedY + matrix[0][2];
+    const newY =
+      matrix[1][0] * translatedX + matrix[1][1] * translatedY + matrix[1][2];
+
+    return [newX + tx, newY + ty];
   }
 
   getCenter() {
@@ -83,12 +99,12 @@ export class Rect extends Layer {
     const scaleMatrix = [
       [horizontalScale, 0, 0],
       [0, verticalScale, 0],
-      [0, 0, 1]
+      [0, 0, 1],
     ];
 
     const scalePoint = (point) => {
       if (Array.isArray(point[0])) {
-        return point.map(innerPoint => scalePoint(innerPoint));
+        return point.map((innerPoint) => scalePoint(innerPoint));
       } else {
         const [x, y] = point;
         const [cx, cy] = center;
@@ -97,8 +113,10 @@ export class Rect extends Layer {
         const translatedX = x - cx;
         const translatedY = y - cy;
 
-        const scaledX = scaleMatrix[0][0] * translatedX + scaleMatrix[0][1] * translatedY;
-        const scaledY = scaleMatrix[1][0] * translatedX + scaleMatrix[1][1] * translatedY;
+        const scaledX =
+          scaleMatrix[0][0] * translatedX + scaleMatrix[0][1] * translatedY;
+        const scaledY =
+          scaleMatrix[1][0] * translatedX + scaleMatrix[1][1] * translatedY;
 
         return [scaledX + cx, scaledY + cy];
       }
