@@ -80,18 +80,27 @@ export class Rect extends Layer {
 
   scale(horizontalScale, verticalScale) {
     const center = this.getCenter();
+    const scaleMatrix = [
+      [horizontalScale, 0, 0],
+      [0, verticalScale, 0],
+      [0, 0, 1]
+    ];
 
     const scalePoint = (point) => {
       if (Array.isArray(point[0])) {
-        return point.map((innerPoint) => scalePoint(innerPoint));
+        return point.map(innerPoint => scalePoint(innerPoint));
       } else {
         const [x, y] = point;
         const [cx, cy] = center;
 
-        const newX = cx + (x - cx) * horizontalScale;
-        const newY = cy + (y - cy) * verticalScale;
+        // Move to origin, apply scale, then move back
+        const translatedX = x - cx;
+        const translatedY = y - cy;
 
-        return [newX, newY];
+        const scaledX = scaleMatrix[0][0] * translatedX + scaleMatrix[0][1] * translatedY;
+        const scaledY = scaleMatrix[1][0] * translatedX + scaleMatrix[1][1] * translatedY;
+
+        return [scaledX + cx, scaledY + cy];
       }
     };
 
