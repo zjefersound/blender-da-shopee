@@ -15,6 +15,7 @@ export class Modal {
       rotatePointY: 0,
       translateX: 0,
       translateY: 0,
+      scaleAroundOrigin: false,
       scaleX: 1,
       scaleY: 1,
     };
@@ -99,6 +100,11 @@ export class Modal {
       1
     );
 
+    const scaleOriginInput = this.createCheckboxField(
+      "scaleAroundOrigin",
+      "Em relação a origem"
+    );
+
     // Add fields to form
     editForm.appendChild(translateXInput);
     editForm.appendChild(translateYInput);
@@ -110,6 +116,7 @@ export class Modal {
     editForm.appendChild(rotationFormGroup);
     editForm.appendChild(scaleXInput);
     editForm.appendChild(scaleYInput);
+    editForm.appendChild(scaleOriginInput);
 
     const modalFooter = document.createElement("div");
     modalFooter.className = "modal-footer";
@@ -196,6 +203,7 @@ export class Modal {
       translateY: 0,
       scaleX: 1,
       scaleY: 1,
+      scaleAroundOrigin: false,
     };
 
     // Update input fields with default values
@@ -216,6 +224,8 @@ export class Modal {
       this.inputs.rotatePointY.value = this.state.rotatePointY;
     if (this.inputs.scaleX) this.inputs.scaleX.value = this.state.scaleX;
     if (this.inputs.scaleY) this.inputs.scaleY.value = this.state.scaleY;
+    if (this.inputs.scaleAroundOrigin)
+      this.inputs.scaleAroundOrigin.checked = this.state.scaleAroundOrigin;
   }
 
   open(layer) {
@@ -238,7 +248,14 @@ export class Modal {
 
     // scaling
     if (this.state.scaleX !== 1 || this.state.scaleY !== 1) {
-      this.currentLayer.scale(this.state.scaleX, this.state.scaleY);
+      if (this.state.scaleAroundOrigin) {
+        const basePoint = Array.isArray(this.currentLayer.position[0])
+          ? this.currentLayer.position[0]
+          : this.currentLayer.position;
+        this.currentLayer.scaleFrom(this.state.scaleX, this.state.scaleY, basePoint);
+      } else {
+        this.currentLayer.scale(this.state.scaleX, this.state.scaleY);
+      }
     }
     // rotation
     if (this.state.rotationDegrees) {

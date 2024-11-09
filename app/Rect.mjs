@@ -89,8 +89,7 @@ export class Rect extends Layer {
     this.position = this.position.map(translatePoint);
   }
 
-  scale(horizontalScale, verticalScale) {
-    const center = this.getCenter();
+  scaleFrom(horizontalScale, verticalScale, basePoint) {
     const scaleMatrix = [
       [horizontalScale, 0, 0],
       [0, verticalScale, 0],
@@ -102,7 +101,7 @@ export class Rect extends Layer {
         return point.map((innerPoint) => scalePoint(innerPoint));
       } else {
         const [x, y] = point;
-        const [cx, cy] = center;
+        const [cx, cy] = basePoint;
 
         // Move to origin, apply scale, then move back
         const translatedX = x - cx;
@@ -118,6 +117,11 @@ export class Rect extends Layer {
     };
 
     this.position = this.position.map(scalePoint);
+  }
+
+  scale(horizontalScale, verticalScale) {
+    const center = this.getCenter();
+    this.scaleFrom(horizontalScale, verticalScale, center);
   }
 
   draw(ctx) {
