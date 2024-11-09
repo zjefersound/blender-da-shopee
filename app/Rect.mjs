@@ -12,8 +12,14 @@ export class Rect extends Layer {
   }
 
   rotate(degrees) {
-    const angle = (degrees * Math.PI) / 180;
     const center = this.getCenter();
+    this.rotateAroundPoint(degrees, center);
+  }
+
+  rotateAroundPoint(degrees, point) {
+    // Point is an array of [x, y]. Example: [0,0]
+    const angle = (degrees * Math.PI) / 180;
+    const center = point;
 
     const rotationMatrix = [
       [Math.cos(angle), -Math.sin(angle), 0],
@@ -28,18 +34,7 @@ export class Rect extends Layer {
   }
 
   rotateOrigin(degrees) {
-    const angle = (degrees * Math.PI) / 180;
-
-    const rotationMatrix = [
-      [Math.cos(angle), -Math.sin(angle), 0],
-      [Math.sin(angle), Math.cos(angle), 0],
-      [0, 0, 1],
-    ];
-
-    // Rotate around (0,0)
-    this.position = this.position.map((point) =>
-      this.transformPoint(point, [0, 0], rotationMatrix)
-    );
+    this.rotateAroundPoint(degrees, [0, 0]);
   }
 
   transformPoint(point, translation, matrix) {

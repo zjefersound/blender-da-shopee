@@ -1,5 +1,3 @@
-import { LAYER_NAMES } from "../constants.mjs";
-
 /**
  * I need to:
  * Add translation
@@ -12,6 +10,9 @@ export class Modal {
     this.state = {
       rotationDegrees: 0,
       rotationAroundOrigin: false,
+      rotationAroundPoint: false,
+      rotatePointX: 0,
+      rotatePointY: 0,
       translateX: 0,
       translateY: 0,
       scaleX: 1,
@@ -39,22 +40,74 @@ export class Modal {
     editForm.id = "edit-form";
 
     // Translation Fields
-    const translateXInput = this.createInputField("translateX", "Translação X", "number", 0);
-    const translateYInput = this.createInputField("translateY", "Translação Y", "number", 0);
+    const translateXInput = this.createInputField(
+      "translateX",
+      "Translação X",
+      "number",
+      0
+    );
+    const translateYInput = this.createInputField(
+      "translateY",
+      "Translação Y",
+      "number",
+      0
+    );
 
     // Rotation Fields
-    const rotationInput = this.createInputField("rotationDegrees", "Rotação (graus)", "number", 0);
-    const rotationOriginInput = this.createCheckboxField("rotationAroundOrigin", "Rotacionar ao redor da origem (0,0)");
+    const rotationInput = this.createInputField(
+      "rotationDegrees",
+      "Rotação (graus)",
+      "number",
+      0
+    );
+    const rotationOriginInput = this.createCheckboxField(
+      "rotationAroundOrigin",
+      "Rotacionar ao redor da origem (0,0)"
+    );
+
+    // Rotation around any point
+    const rotationFormGroup = document.createElement("div");
+    rotationFormGroup.className = "rotation-form-group";
+    const rotationPointInput = this.createCheckboxField(
+      "rotationAroundPoint",
+      "Rotacionar ao redor de um ponto qualquer:"
+    );
+    const rotateXInput = this.createInputField(
+      "rotatePointX",
+      "x: ",
+      "number",
+      0
+    );
+    const rotateYInput = this.createInputField(
+      "rotatePointY",
+      "y: ",
+      "number",
+      0
+    );
 
     // Scaling Fields
-    const scaleXInput = this.createInputField("scaleX", "Escala X", "number", 1);
-    const scaleYInput = this.createInputField("scaleY", "Escala Y", "number", 1);
+    const scaleXInput = this.createInputField(
+      "scaleX",
+      "Escala X",
+      "number",
+      1
+    );
+    const scaleYInput = this.createInputField(
+      "scaleY",
+      "Escala Y",
+      "number",
+      1
+    );
 
     // Add fields to form
     editForm.appendChild(translateXInput);
     editForm.appendChild(translateYInput);
     editForm.appendChild(rotationInput);
     editForm.appendChild(rotationOriginInput);
+    rotationFormGroup.appendChild(rotationPointInput);
+    rotationFormGroup.appendChild(rotateXInput);
+    rotationFormGroup.appendChild(rotateYInput);
+    editForm.appendChild(rotationFormGroup);
     editForm.appendChild(scaleXInput);
     editForm.appendChild(scaleYInput);
 
@@ -88,7 +141,7 @@ export class Modal {
 
   createInputField(stateKey, label, type = "text", defaultValue = "") {
     const container = document.createElement("div");
-    container.className = 'form-control';
+    container.className = "form-control";
     const labelElement = document.createElement("label");
     labelElement.innerText = label;
 
@@ -99,7 +152,8 @@ export class Modal {
     this.inputs[stateKey] = inputElement;
 
     inputElement.addEventListener("input", (e) => {
-      this.state[stateKey] = type === "number" ? parseFloat(e.target.value) : e.target.value;
+      this.state[stateKey] =
+        type === "number" ? parseFloat(e.target.value) : e.target.value;
     });
 
     container.appendChild(labelElement);
@@ -110,7 +164,7 @@ export class Modal {
 
   createCheckboxField(stateKey, label) {
     const container = document.createElement("div");
-    container.className = 'form-checkbox';
+    container.className = "form-checkbox";
     const labelElement = document.createElement("label");
     labelElement.innerText = label;
 
@@ -135,6 +189,9 @@ export class Modal {
     this.state = {
       rotationDegrees: 0,
       rotationAroundOrigin: false,
+      rotationAroundPoint: false,
+      rotatePointX: 0,
+      rotatePointY: 0,
       translateX: 0,
       translateY: 0,
       scaleX: 1,
@@ -142,10 +199,21 @@ export class Modal {
     };
 
     // Update input fields with default values
-    if (this.inputs.translateX) this.inputs.translateX.value = this.state.translateX;
-    if (this.inputs.translateY) this.inputs.translateY.value = this.state.translateY;
-    if (this.inputs.rotationDegrees) this.inputs.rotationDegrees.value = this.state.rotationDegrees;
-    if (this.inputs.rotationAroundOrigin) this.inputs.rotationAroundOrigin.checked = this.state.rotationAroundOrigin;
+    if (this.inputs.translateX)
+      this.inputs.translateX.value = this.state.translateX;
+    if (this.inputs.translateY)
+      this.inputs.translateY.value = this.state.translateY;
+    if (this.inputs.rotationDegrees)
+      this.inputs.rotationDegrees.value = this.state.rotationDegrees;
+    if (this.inputs.rotationAroundOrigin)
+      this.inputs.rotationAroundOrigin.checked =
+        this.state.rotationAroundOrigin;
+    if (this.inputs.rotationAroundPoint)
+      this.inputs.rotationAroundPoint.checked = this.state.rotationAroundPoint;
+    if (this.inputs.rotatePointX)
+      this.inputs.rotatePointX.value = this.state.rotatePointX;
+    if (this.inputs.rotatePointY)
+      this.inputs.rotatePointY.value = this.state.rotatePointY;
     if (this.inputs.scaleX) this.inputs.scaleX.value = this.state.scaleX;
     if (this.inputs.scaleY) this.inputs.scaleY.value = this.state.scaleY;
   }
@@ -172,11 +240,13 @@ export class Modal {
     if (this.state.scaleX !== 1 || this.state.scaleY !== 1) {
       this.currentLayer.scale(this.state.scaleX, this.state.scaleY);
     }
-
     // rotation
     if (this.state.rotationDegrees) {
       if (this.state.rotationAroundOrigin) {
         this.currentLayer.rotateOrigin(this.state.rotationDegrees);
+      } else if (this.state.rotationAroundPoint) {
+        const point = [this.state.rotatePointX, this.state.rotatePointY];
+        this.currentLayer.rotateAroundPoint(this.state.rotationDegrees, point);
       } else {
         this.currentLayer.rotate(this.state.rotationDegrees);
       }

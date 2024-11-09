@@ -203,7 +203,7 @@ body {
 .modal-content {
   background-color: #444;
   padding: 20px;
-  width: 360px;
+  width: 560px;
   margin: auto;
   border-radius: 4px;
 }
@@ -215,6 +215,23 @@ body {
 
 .modal.show {
   display: flex;
+}
+
+.rotation-form-group {
+  display: flex;
+  align-items: center;
+}
+
+.rotation-form-group .form-checkbox {
+  margin-right: auto;
+}
+
+.rotation-form-group .form-control {
+  margin-left: 24px;
+}
+
+.rotation-form-group .form-control input {
+  width: 60px;
 }
 
 .btn {
