@@ -124,6 +124,42 @@ export class Rect extends Layer {
     this.scaleFrom(horizontalScale, verticalScale, center);
   }
 
+  reflect(x, y) {
+    const rX = x ? -1 : 1
+    const rY = y ? -1 : 1
+    
+    const reflectionMatrix = [
+      [rY, 0, 0],
+      [0, rX, 0],
+      [0, 0, 1],
+    ];
+ 
+    this.position = this.position.map((point) =>
+      this.applyTransformation(point, reflectionMatrix)
+    );
+  }
+
+  shear(shX = 0, shY = 0) {
+    const shearMatrix = [
+      [1, shX, 0],
+      [shY, 1, 0],
+      [0, 0, 1],
+    ];
+  
+    this.position = this.position.map((point) =>
+      this.applyTransformation(point, shearMatrix)
+    );
+  }
+ 
+  applyTransformation(point, matrix) {
+    const [x, y] = point;
+  
+    const newX = matrix[0][0] * x + matrix[0][1] * y + matrix[0][2];
+    const newY = matrix[1][0] * x + matrix[1][1] * y + matrix[1][2];
+  
+    return [newX, newY];
+  } 
+
   draw(ctx) {
     if (this.type === RECT_TYPES.dot) {
       ctx.beginPath();
