@@ -18,6 +18,8 @@ export class Modal {
       scaleAroundOrigin: false,
       scaleX: 1,
       scaleY: 1,
+      reflectX: false,
+      reflectY: false,
     };
     this.inputs = {};
     this.initializeModal();
@@ -105,6 +107,16 @@ export class Modal {
       "Em relação a origem"
     );
 
+    const reflectXInput = this.createCheckboxField(
+      "reflectX",
+      "Refletir em torno do eixo X"
+    );
+
+    const reflectYInput = this.createCheckboxField(
+      "reflectY",
+      "Refletir em torno do eixo Y"
+    );
+
     // Add fields to form
     editForm.appendChild(translateXInput);
     editForm.appendChild(translateYInput);
@@ -117,6 +129,8 @@ export class Modal {
     editForm.appendChild(scaleXInput);
     editForm.appendChild(scaleYInput);
     editForm.appendChild(scaleOriginInput);
+    editForm.appendChild(reflectXInput);
+    editForm.appendChild(reflectYInput);
 
     const modalFooter = document.createElement("div");
     modalFooter.className = "modal-footer";
@@ -204,6 +218,8 @@ export class Modal {
       scaleX: 1,
       scaleY: 1,
       scaleAroundOrigin: false,
+      reflectX: false,
+      reflectY: false,      
     };
 
     // Update input fields with default values
@@ -226,6 +242,10 @@ export class Modal {
     if (this.inputs.scaleY) this.inputs.scaleY.value = this.state.scaleY;
     if (this.inputs.scaleAroundOrigin)
       this.inputs.scaleAroundOrigin.checked = this.state.scaleAroundOrigin;
+    if (this.inputs.reflectX)
+      this.inputs.reflectX.checked = this.state.reflectX;
+    if (this.inputs.reflectY)
+      this.inputs.reflectY.checked = this.state.reflectY;
   }
 
   open(layer) {
@@ -267,6 +287,11 @@ export class Modal {
       } else {
         this.currentLayer.rotate(this.state.rotationDegrees);
       }
+    }
+
+    // reflection
+    if (this.state.reflectX || this.state.reflectY) {
+      this.currentLayer.reflect(this.state.reflectX, this.state.reflectY)
     }
 
     this.close();
