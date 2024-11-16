@@ -20,6 +20,8 @@ export class Modal {
       scaleY: 1,
       reflectX: false,
       reflectY: false,
+      shX: 0,
+      shY: 0,
     };
     this.inputs = {};
     this.initializeModal();
@@ -117,6 +119,20 @@ export class Modal {
       "Refletir em torno do eixo Y"
     );
 
+    const shXInput = this.createInputField(
+      "shX",
+      "sh x: ",
+      "number",
+      0
+    );
+
+    const shYInput = this.createInputField(
+      "shY",
+      "sh y: ",
+      "number",
+      0
+    );
+
     // Add fields to form
     editForm.appendChild(translateXInput);
     editForm.appendChild(translateYInput);
@@ -131,6 +147,8 @@ export class Modal {
     editForm.appendChild(scaleOriginInput);
     editForm.appendChild(reflectXInput);
     editForm.appendChild(reflectYInput);
+    editForm.appendChild(shXInput);
+    editForm.appendChild(shYInput);
 
     const modalFooter = document.createElement("div");
     modalFooter.className = "modal-footer";
@@ -219,7 +237,9 @@ export class Modal {
       scaleY: 1,
       scaleAroundOrigin: false,
       reflectX: false,
-      reflectY: false,      
+      reflectY: false,
+      shX: 0,
+      shY: 0,
     };
 
     // Update input fields with default values
@@ -246,6 +266,10 @@ export class Modal {
       this.inputs.reflectX.checked = this.state.reflectX;
     if (this.inputs.reflectY)
       this.inputs.reflectY.checked = this.state.reflectY;
+    if (this.inputs.shX)
+      this.inputs.shX.value = this.state.shX;
+    if (this.inputs.shY)
+      this.inputs.shY.value = this.state.shY;
   }
 
   open(layer) {
@@ -292,6 +316,11 @@ export class Modal {
     // reflection
     if (this.state.reflectX || this.state.reflectY) {
       this.currentLayer.reflect(this.state.reflectX, this.state.reflectY)
+    }
+
+    // shear
+    if (this.state.shX || this.state.shY) {
+      this.currentLayer.shear(this.state.shX || 0, this.state.shY || 0)
     }
 
     this.close();
