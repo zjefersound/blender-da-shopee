@@ -12,6 +12,11 @@ export class Rect extends Layer {
   }
 
   rotate(degrees) {
+    const point = Array.isArray(this.position[0]) ? this.position [0] : this.position;
+    this.rotateAroundPoint(degrees, point);
+  }
+
+  rotateCenter(degrees) {
     const center = this.getCenter();
     this.rotateAroundPoint(degrees, center);
   }

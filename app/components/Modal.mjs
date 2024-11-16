@@ -11,6 +11,7 @@ export class Modal {
       rotationDegrees: 0,
       rotationAroundOrigin: false,
       rotationAroundPoint: false,
+      rotationAroundCenter: false,
       rotatePointX: 0,
       rotatePointY: 0,
       translateX: 0,
@@ -68,6 +69,11 @@ export class Modal {
     const rotationOriginInput = this.createCheckboxField(
       "rotationAroundOrigin",
       "Rotacionar ao redor da origem (0,0)"
+    );
+
+    const rotationCenterInput = this.createCheckboxField(
+      "rotationAroundCenter",
+      "Rotacionar ao redor do centro do objeto"
     );
 
     // Rotation around any point
@@ -138,6 +144,7 @@ export class Modal {
     editForm.appendChild(translateYInput);
     editForm.appendChild(rotationInput);
     editForm.appendChild(rotationOriginInput);
+    editForm.appendChild(rotationCenterInput);
     rotationFormGroup.appendChild(rotationPointInput);
     rotationFormGroup.appendChild(rotateXInput);
     rotationFormGroup.appendChild(rotateYInput);
@@ -229,6 +236,7 @@ export class Modal {
       rotationDegrees: 0,
       rotationAroundOrigin: false,
       rotationAroundPoint: false,
+      rotationAroundCenter: false,
       rotatePointX: 0,
       rotatePointY: 0,
       translateX: 0,
@@ -252,6 +260,9 @@ export class Modal {
     if (this.inputs.rotationAroundOrigin)
       this.inputs.rotationAroundOrigin.checked =
         this.state.rotationAroundOrigin;
+    if (this.inputs.rotationAroundCenter)
+      this.inputs.rotationAroundCenter.checked =
+        this.state.rotationAroundCenter;
     if (this.inputs.rotationAroundPoint)
       this.inputs.rotationAroundPoint.checked = this.state.rotationAroundPoint;
     if (this.inputs.rotatePointX)
@@ -303,7 +314,9 @@ export class Modal {
     }
     // rotation
     if (this.state.rotationDegrees) {
-      if (this.state.rotationAroundOrigin) {
+      if (this.state.rotationAroundCenter) {
+        this.currentLayer.rotateCenter(this.state.rotationDegrees);
+      } else if (this.state.rotationAroundOrigin) {
         this.currentLayer.rotateOrigin(this.state.rotationDegrees);
       } else if (this.state.rotationAroundPoint) {
         const point = [this.state.rotatePointX, this.state.rotatePointY];
