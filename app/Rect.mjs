@@ -4,15 +4,17 @@ import { Layer } from "./Layer.mjs";
 export class Rect extends Layer {
   constructor(type, name, position) {
     super(type, name);
-    this.position = position;
+    this.position = position.map(([x, y, z = 0]) => [x, y, z]);
   }
 
   setPosition(position) {
-    this.position = position;
+    this.position = position.map(([x, y, z = 0]) => [x, y, z]);
   }
 
   rotate(degrees) {
-    const point = Array.isArray(this.position[0]) ? this.position [0] : this.position;
+    const point = Array.isArray(this.position[0])
+      ? this.position[0]
+      : this.position;
     this.rotateAroundPoint(degrees, point);
   }
 
@@ -59,12 +61,15 @@ export class Rect extends Layer {
 
   getCenter() {
     let sumX = 0,
-      sumY = 0;
-    for (let point of this.position) {
-      sumX += point[0];
-      sumY += point[1];
+      sumY = 0,
+      sumZ = 0;
+    for (let [x, y, z] of this.position) {
+      sumX += x;
+      sumY += y;
+      sumZ += z;
     }
-    return [sumX / this.position.length, sumY / this.position.length];
+    const length = this.position.length;
+    return [sumX / length, sumY / length, sumZ / length];
   }
 
   translate(dx, dy) {
@@ -130,15 +135,15 @@ export class Rect extends Layer {
   }
 
   reflect(x, y) {
-    const rX = x ? -1 : 1
-    const rY = y ? -1 : 1
-    
+    const rX = x ? -1 : 1;
+    const rY = y ? -1 : 1;
+
     const reflectionMatrix = [
       [rY, 0, 0],
       [0, rX, 0],
       [0, 0, 1],
     ];
- 
+
     this.position = this.position.map((point) =>
       this.applyTransformation(point, reflectionMatrix)
     );
@@ -150,20 +155,20 @@ export class Rect extends Layer {
       [shY, 1, 0],
       [0, 0, 1],
     ];
-  
+
     this.position = this.position.map((point) =>
       this.applyTransformation(point, shearMatrix)
     );
   }
- 
+
   applyTransformation(point, matrix) {
     const [x, y] = point;
-  
+
     const newX = matrix[0][0] * x + matrix[0][1] * y + matrix[0][2];
     const newY = matrix[1][0] * x + matrix[1][1] * y + matrix[1][2];
-  
+
     return [newX, newY];
-  } 
+  }
 
   draw(ctx) {
     if (this.type === RECT_TYPES.dot) {

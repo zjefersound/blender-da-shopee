@@ -6,20 +6,20 @@ import { Viewport } from "./Viewport.mjs";
 
 const coordinatesDisplay = document.getElementById("coordinates");
 const canvas = document.getElementById("blender-canvas");
-let ctx = canvas.getContext("2d");
+let ctx = canvas.getContext("3d");
 canvas.height = window.innerHeight - 64 - 23;
 canvas.width = window.innerWidth - 280;
 
 const testItem = new Rect(RECT_TYPES.polygon, "Polígono 1", [
-  [0, 0],
-  [0, -50],
-  [-50, -50],
-  [-50, 0],
-  [-25, 25],
-])
+  [0, 0, 0],
+  [0, -50, 0],
+  [-50, -50, 0],
+  [-50, 0, 0],
+  [-25, 25, 0],
+]);
 
-testItem.translate(-10,-30)
-testItem.scale(2,2)
+testItem.translate(-10, -30);
+testItem.scale(2, 2);
 
 const grid = new CanvasGrid(canvas, 1, [0, 0]);
 const app = new App({
@@ -31,32 +31,32 @@ const app = new App({
   layers: [
     testItem,
     new Rect(RECT_TYPES.polygon, "Polígono 1", [
-      [0, 0],
-      [0, -50],
-      [-50, -50],
-      [-50, 0],
-      [-25, 25],
+      [0, 0, 0],
+      [0, -50, 0],
+      [-50, -50, 0],
+      [-50, 0, 0],
+      [-25, 25, 0],
     ]),
     new Rect(RECT_TYPES.polygon, "Polígono 2", [
-      [0, 100],
-      [0, 50],
-      [-50, 50],
-      [-50, 100],
-      [-25, 125],
+      [0, 100, 0],
+      [0, 50, 0],
+      [-50, 50, 0],
+      [-50, 100, 0],
+      [-25, 125, 0],
     ]),
     new Rect(RECT_TYPES.lines, "Polilinha 1", [
-      [-100, 0],
-      [-100, -50],
-      [-150, -50],
-      [-150, 0],
-      [-125, 25],
+      [-100, 0, 0],
+      [-100, -50, 0],
+      [-150, -50, 0],
+      [-150, 0, 0],
+      [-125, 25, 0],
     ]),
     new Rect(RECT_TYPES.lines, "Polilinha 2", [
-      [-125, 125],
-      [-100, 100],
-      [-100, 50],
-      [-150, 50],
-      [-150, 100],
+      [-125, 125, 0],
+      [-100, 100, 0],
+      [-100, 50, 0],
+      [-150, 50, 0],
+      [-150, 100, 0],
     ]),
   ],
 });
@@ -76,7 +76,8 @@ function getMousePos(evt) {
   const y =
     -(evt.clientY - rect.top - viewport.height / 2 - viewport.offsetY) /
     viewport.scale;
-  return { x: x, y: y };
+  const z = 0;
+  return { x, y, z };
 }
 
 canvas.addEventListener("mousemove", (event) => {
@@ -91,16 +92,16 @@ canvas.addEventListener("mousemove", (event) => {
 
 canvas.addEventListener("click", (event) => {
   if (app.state.currentTool === "addDot") {
-    const { x, y } = getMousePos(event);
+    const { x, y, z } = getMousePos(event);
     const newName = app.state.layers.generateName("dot");
-    const rect = new Rect(RECT_TYPES.dot, newName, [x, y]);
+    const rect = new Rect(RECT_TYPES.dot, newName, [x, y, z]);
     app.state.layers.push(rect);
     renderApp();
   }
 
   if (app.state.currentTool === "addPolygon") {
-    const { x, y } = getMousePos(event);
-    const polygonPosition = [x, y];
+    const { x, y, z } = getMousePos(event);
+    const polygonPosition = [x, y, z];
     if (!app.state?.cursorState?.polygonPositions)
       app.state.cursorState = {
         polygonPositions: [],
@@ -110,8 +111,8 @@ canvas.addEventListener("click", (event) => {
   }
 
   if (app.state.currentTool === "addLines") {
-    const { x, y } = getMousePos(event);
-    const linesPosition = [x, y];
+    const { x, y, z } = getMousePos(event);
+    const linesPosition = [x, y, z];
     if (!app.state?.cursorState?.linesPositions)
       app.state.cursorState = {
         linesPositions: [],
