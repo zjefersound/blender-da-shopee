@@ -6,7 +6,7 @@ import { Viewport } from "./Viewport.mjs";
 
 const coordinatesDisplay = document.getElementById("coordinates");
 const canvas = document.getElementById("blender-canvas");
-let ctx = canvas.getContext("3d");
+let ctx = canvas.getContext("2d");
 canvas.height = window.innerHeight - 64 - 23;
 canvas.width = window.innerWidth - 280;
 
