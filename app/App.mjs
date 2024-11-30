@@ -1,4 +1,5 @@
 import { Modal } from "./components/Modal.mjs";
+import { NewLayerModal } from "./components/NewLayerModal.mjs";
 import { HELPER_TEXT, ICONS, VERTICAL_TOOLS } from "./constants.mjs";
 import { Layers } from "./Layers.mjs";
 import { clearCanvas } from "./utils/clearCanvas.mjs";
@@ -27,6 +28,16 @@ export class App {
       this.renderLayersList();
       this.drawLayers();
     });
+
+    this.newLayerModal = new NewLayerModal();
+    this.newLayerModal.setOnSaveCallback((rect) => {
+      this.state.layers.push(rect)  
+      clearCanvas(this.ctx);
+      this.renderLayersList();
+      this.drawLayers();
+    });
+    const newLayerButton = document.getElementById("new-layer");
+    newLayerButton.onclick = () => this.newLayerModal.open();
   }
 
   drawLayers() {
