@@ -24,7 +24,7 @@ export class Rect extends Layer {
   }
 
   rotateAroundPoint(degrees, point) {
-    // Point is an array of [x, y]. Example: [0,0]
+    // Point is an array of [x, y, z]. Example: [0,0,0]
     const angle = (degrees * Math.PI) / 180;
     const center = point;
 

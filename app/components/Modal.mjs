@@ -16,9 +16,11 @@ export class Modal {
       rotatePointY: 0,
       translateX: 0,
       translateY: 0,
+      translateZ: 0,
       scaleAroundOrigin: false,
       scaleX: 1,
       scaleY: 1,
+      scaleZ: 1,
       reflectX: false,
       reflectY: false,
       shX: 0,
@@ -55,6 +57,12 @@ export class Modal {
     const translateYInput = this.createInputField(
       "translateY",
       "Translação Y",
+      "number",
+      0
+    );
+    const translateZInput = this.createInputField(
+      "translateZ",
+      "Translação Z",
       "number",
       0
     );
@@ -109,6 +117,12 @@ export class Modal {
       "number",
       1
     );
+    const scaleZInput = this.createInputField(
+      "scaleZ",
+      "Escala Z",
+      "number",
+      1
+    );
 
     const scaleOriginInput = this.createCheckboxField(
       "scaleAroundOrigin",
@@ -142,6 +156,7 @@ export class Modal {
     // Add fields to form
     editForm.appendChild(translateXInput);
     editForm.appendChild(translateYInput);
+    editForm.appendChild(translateZInput);
     editForm.appendChild(rotationInput);
     editForm.appendChild(rotationOriginInput);
     editForm.appendChild(rotationCenterInput);
@@ -151,6 +166,7 @@ export class Modal {
     editForm.appendChild(rotationFormGroup);
     editForm.appendChild(scaleXInput);
     editForm.appendChild(scaleYInput);
+    editForm.appendChild(scaleZInput);
     editForm.appendChild(scaleOriginInput);
     editForm.appendChild(reflectXInput);
     editForm.appendChild(reflectYInput);
@@ -241,8 +257,10 @@ export class Modal {
       rotatePointY: 0,
       translateX: 0,
       translateY: 0,
+      translateZ: 0,
       scaleX: 1,
       scaleY: 1,
+      scaleZ: 1,
       scaleAroundOrigin: false,
       reflectX: false,
       reflectY: false,
@@ -255,6 +273,8 @@ export class Modal {
       this.inputs.translateX.value = this.state.translateX;
     if (this.inputs.translateY)
       this.inputs.translateY.value = this.state.translateY;
+    if (this.inputs.translateZ)
+      this.inputs.translateZ.value = this.state.translateZ;
     if (this.inputs.rotationDegrees)
       this.inputs.rotationDegrees.value = this.state.rotationDegrees;
     if (this.inputs.rotationAroundOrigin)
@@ -271,16 +291,15 @@ export class Modal {
       this.inputs.rotatePointY.value = this.state.rotatePointY;
     if (this.inputs.scaleX) this.inputs.scaleX.value = this.state.scaleX;
     if (this.inputs.scaleY) this.inputs.scaleY.value = this.state.scaleY;
+    if (this.inputs.scaleZ) this.inputs.scaleZ.value = this.state.scaleZ;
     if (this.inputs.scaleAroundOrigin)
       this.inputs.scaleAroundOrigin.checked = this.state.scaleAroundOrigin;
     if (this.inputs.reflectX)
       this.inputs.reflectX.checked = this.state.reflectX;
     if (this.inputs.reflectY)
       this.inputs.reflectY.checked = this.state.reflectY;
-    if (this.inputs.shX)
-      this.inputs.shX.value = this.state.shX;
-    if (this.inputs.shY)
-      this.inputs.shY.value = this.state.shY;
+    if (this.inputs.shX) this.inputs.shX.value = this.state.shX;
+    if (this.inputs.shY) this.inputs.shY.value = this.state.shY;
   }
 
   open(layer) {
@@ -297,19 +316,19 @@ export class Modal {
     if (!this.currentLayer) return;
 
     // translation
-    if (this.state.translateX !== 0 || this.state.translateY !== 0) {
-      this.currentLayer.translate(this.state.translateX, this.state.translateY);
+    if (this.state.translateX !== 0 || this.state.translateY !== 0 || this.state.translateZ !== 0) {
+      this.currentLayer.translate(this.state.translateX, this.state.translateY, this.state.translateZ);
     }
 
     // scaling
-    if (this.state.scaleX !== 1 || this.state.scaleY !== 1) {
+    if (this.state.scaleX !== 1 || this.state.scaleY !== 1 || this.state.scaleZ !== 1) {
       if (this.state.scaleAroundOrigin) {
         const basePoint = Array.isArray(this.currentLayer.position[0])
           ? this.currentLayer.position[0]
           : this.currentLayer.position;
-        this.currentLayer.scaleFrom(this.state.scaleX, this.state.scaleY, 1, basePoint);
+        this.currentLayer.scaleFrom(this.state.scaleX, this.state.scaleY, this.state.scaleZ, basePoint);
       } else {
-        this.currentLayer.scale(this.state.scaleX, this.state.scaleY);
+        this.currentLayer.scale(this.state.scaleX, this.state.scaleY, this.state.scaleZ);
       }
     }
     // rotation
