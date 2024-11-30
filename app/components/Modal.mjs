@@ -307,7 +307,7 @@ export class Modal {
         const basePoint = Array.isArray(this.currentLayer.position[0])
           ? this.currentLayer.position[0]
           : this.currentLayer.position;
-        this.currentLayer.scaleFrom(this.state.scaleX, this.state.scaleY, basePoint);
+        this.currentLayer.scaleFrom(this.state.scaleX, this.state.scaleY, 1, basePoint);
       } else {
         this.currentLayer.scale(this.state.scaleX, this.state.scaleY);
       }

@@ -82,49 +82,33 @@ export class Rect extends Layer {
     );
   }
 
-  scaleFrom(horizontalScale, verticalScale, basePoint) {
+  scaleFrom(horizontalScale, verticalScale, depthScale, basePoint) {
     const scaleMatrix = [
       [horizontalScale, 0, 0],
       [0, verticalScale, 0],
-      [0, 0, 1],
+      [0, 0, depthScale],
     ];
 
-    const scalePoint = (point) => {
-      if (Array.isArray(point[0])) {
-        return point.map((innerPoint) => scalePoint(innerPoint));
-      } else {
-        const [x, y] = point;
-        const [cx, cy] = basePoint;
-
-        // Move to origin, apply scale, then move back
-        const translatedX = x - cx;
-        const translatedY = y - cy;
-
-        const scaledX =
-          scaleMatrix[0][0] * translatedX + scaleMatrix[0][1] * translatedY;
-        const scaledY =
-          scaleMatrix[1][0] * translatedX + scaleMatrix[1][1] * translatedY;
-
-        return [scaledX + cx, scaledY + cy];
-      }
-    };
-
-    this.position = this.position.map(scalePoint);
+    this.position = this.position.map((point) =>
+      this.transformPoint(point, basePoint, scaleMatrix)
+    );
   }
 
-  scale(horizontalScale, verticalScale) {
+  scale(horizontalScale, verticalScale, depthScale = 1) {
     const center = this.getCenter();
-    this.scaleFrom(horizontalScale, verticalScale, center);
+    this.scaleFrom(horizontalScale, verticalScale, depthScale, center);
   }
 
-  reflect(x, y) {
+  reflect(x, y, z = false) {
     const rX = x ? -1 : 1;
     const rY = y ? -1 : 1;
+    const rZ = z ? -1 : 1;
 
     const reflectionMatrix = [
-      [rY, 0, 0],
-      [0, rX, 0],
-      [0, 0, 1],
+      [rX, 0, 0, 0],
+      [0, rY, 0, 0],
+      [0, 0, rZ, 0],
+      [0, 0, 0, 1],
     ];
 
     this.position = this.position.map((point) =>
@@ -132,11 +116,12 @@ export class Rect extends Layer {
     );
   }
 
-  shear(shX = 0, shY = 0) {
+  shear(shX = 0, shY = 0, shZ = 0) {
     const shearMatrix = [
-      [1, shX, 0],
-      [shY, 1, 0],
-      [0, 0, 1],
+      [1, shX, 0, 0],
+      [shY, 1, 0, 0],
+      [shZ, 0, 1, 0],
+      [0, 0, 0, 1],
     ];
 
     this.position = this.position.map((point) =>
@@ -145,12 +130,14 @@ export class Rect extends Layer {
   }
 
   applyTransformation(point, matrix) {
-    const [x, y] = point;
-
-    const newX = matrix[0][0] * x + matrix[0][1] * y + matrix[0][2];
-    const newY = matrix[1][0] * x + matrix[1][1] * y + matrix[1][2];
-
-    return [newX, newY];
+    const [x, y, z] = point;
+    const newX =
+      matrix[0][0] * x + matrix[0][1] * y + matrix[0][2] * z + matrix[0][3];
+    const newY =
+      matrix[1][0] * x + matrix[1][1] * y + matrix[1][2] * z + matrix[1][3];
+    const newZ =
+      matrix[2][0] * x + matrix[2][1] * y + matrix[2][2] * z + matrix[2][3];
+    return [newX, newY, newZ];
   }
 
   draw(ctx) {
