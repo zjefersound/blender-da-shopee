@@ -41,22 +41,19 @@ export class Rect extends Layer {
   }
 
   rotateOrigin(degrees) {
-    this.rotateAroundPoint(degrees, [0, 0]);
+    this.rotateAroundPoint(degrees, [0, 0, 0]);
   }
 
   transformPoint(point, translation, matrix) {
-    const [x, y] = point;
-    const [tx, ty] = translation;
+    const [x, y, z] = point;
+    const [tx, ty, tz] = translation;
 
-    const translatedX = x - tx;
-    const translatedY = y - ty;
+    const translated = [x - tx, y - ty, z - tz];
+    const transformed = matrix.map((row) =>
+      row.reduce((sum, value, i) => sum + value * translated[i], 0)
+    );
 
-    const newX =
-      matrix[0][0] * translatedX + matrix[0][1] * translatedY + matrix[0][2];
-    const newY =
-      matrix[1][0] * translatedX + matrix[1][1] * translatedY + matrix[1][2];
-
-    return [newX + tx, newY + ty];
+    return transformed.map((v, i) => v + translation[i]);
   }
 
   getCenter() {
@@ -72,31 +69,17 @@ export class Rect extends Layer {
     return [sumX / length, sumY / length, sumZ / length];
   }
 
-  translate(dx, dy) {
+  translate(dx, dy, dz = 0) {
     const translationMatrix = [
-      [1, 0, dx],
-      [0, 1, dy],
-      [0, 0, 1],
+      [1, 0, 0, dx],
+      [0, 1, 0, dy],
+      [0, 0, 1, dz],
+      [0, 0, 0, 1],
     ];
 
-    const translatePoint = (point) => {
-      if (Array.isArray(point[0])) {
-        return point.map((innerPoint) => translatePoint(innerPoint));
-      } else {
-        const [x, y] = point;
-        const newX =
-          translationMatrix[0][0] * x +
-          translationMatrix[0][1] * y +
-          translationMatrix[0][2];
-        const newY =
-          translationMatrix[1][0] * x +
-          translationMatrix[1][1] * y +
-          translationMatrix[1][2];
-        return [newX, newY];
-      }
-    };
-
-    this.position = this.position.map(translatePoint);
+    this.position = this.position.map((point) =>
+      this.applyTransformation(point, translationMatrix)
+    );
   }
 
   scaleFrom(horizontalScale, verticalScale, basePoint) {
@@ -172,8 +155,9 @@ export class Rect extends Layer {
 
   draw(ctx) {
     if (this.type === RECT_TYPES.dot) {
+      const [x, y] = this.position[0];
       ctx.beginPath();
-      ctx.arc(this.position[0], this.position[1], 3, 0, Math.PI * 2);
+      ctx.arc(x, y, 3, 0, Math.PI * 2);
       ctx.fillStyle = "black";
       ctx.fill();
     } else if (this.type === RECT_TYPES.line) {

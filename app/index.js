@@ -30,6 +30,7 @@ const app = new App({
   cursorState: null,
   layers: [
     testItem,
+    new Rect(RECT_TYPES.dot, "Ponto", [[1, 1, 0]]),
     new Rect(RECT_TYPES.polygon, "Polígono 1", [
       [0, 0, 0],
       [0, -50, 0],
@@ -94,7 +95,7 @@ canvas.addEventListener("click", (event) => {
   if (app.state.currentTool === "addDot") {
     const { x, y, z } = getMousePos(event);
     const newName = app.state.layers.generateName("dot");
-    const rect = new Rect(RECT_TYPES.dot, newName, [x, y, z]);
+    const rect = new Rect(RECT_TYPES.dot, newName, [[x, y, z]]);
     app.state.layers.push(rect);
     renderApp();
   }
