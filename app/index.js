@@ -10,6 +10,29 @@ let ctx = canvas.getContext("2d");
 canvas.height = window.innerHeight - 64 - 23;
 canvas.width = window.innerWidth - 280;
 
+const polygon3D = new Rect(RECT_TYPES.polygon, "Polígono 3D", [
+  [0, 0, 0],
+  [50, 0, 0],
+  [50, 50, 0],
+  [25, 90, 0],
+  [0, 50, 0],
+  [0, 0, 0],
+  [0, 0, -20],
+  [50, 0, -20],
+  [50, 0, 0],
+  [50, 0, -20],
+  [50, 50, -20],
+  [50, 50, 0],
+  [50, 50, -20],
+  [25, 90, -20],
+  [25, 90, 0],
+  [25, 90, -20],
+  [0, 50, -20],
+  [0, 50, 0],
+  [0, 50, -20],
+  [0, 0, -20],
+]);
+
 const testItem = new Rect(RECT_TYPES.polygon, "Polígono 1", [
   [0, 0, 0],
   [0, -50, 0],
@@ -28,38 +51,7 @@ const app = new App({
   currentTool: VERTICAL_TOOLS[0].id,
   isDrawing: false,
   cursorState: null,
-  layers: [
-    testItem,
-    new Rect(RECT_TYPES.dot, "Ponto", [[1, 1, 0]]),
-    new Rect(RECT_TYPES.polygon, "Polígono 1", [
-      [0, 0, 0],
-      [0, -50, 0],
-      [-50, -50, 0],
-      [-50, 0, 0],
-      [-25, 25, 0],
-    ]),
-    new Rect(RECT_TYPES.polygon, "Polígono 2", [
-      [0, 100, 0],
-      [0, 50, 0],
-      [-50, 50, 0],
-      [-50, 100, 0],
-      [-25, 125, 0],
-    ]),
-    new Rect(RECT_TYPES.lines, "Polilinha 1", [
-      [-100, 0, 0],
-      [-100, -50, 0],
-      [-150, -50, 0],
-      [-150, 0, 0],
-      [-125, 25, 0],
-    ]),
-    new Rect(RECT_TYPES.lines, "Polilinha 2", [
-      [-125, 125, 0],
-      [-100, 100, 0],
-      [-100, 50, 0],
-      [-150, 50, 0],
-      [-150, 100, 0],
-    ]),
-  ],
+  layers: [polygon3D],
 });
 
 function renderApp() {
