@@ -9,6 +9,7 @@ export class Modal {
     this.modalElement = null;
     this.state = {
       rotationDegrees: 0,
+      rotationAxis: "z",
       rotationAroundOrigin: false,
       rotationAroundPoint: false,
       rotationAroundCenter: false,
@@ -74,6 +75,33 @@ export class Modal {
       "number",
       0
     );
+
+    // Rotation Axis Radio Group
+    const rotationAxisGroup = document.createElement("fieldset");
+    rotationAxisGroup.className = "rotation-axis-group";
+
+    const legend = document.createElement("legend");
+    legend.textContent = "Select Rotation Axis";
+    rotationAxisGroup.appendChild(legend);
+
+    ["x", "y", "z"].forEach((axis) => {
+      const label = document.createElement("label");
+      label.textContent = axis.toUpperCase();
+
+      const radio = document.createElement("input");
+      radio.type = "radio";
+      radio.name = "rotationAxis";
+      radio.value = axis;
+      radio.checked = this.state.rotationAxis === axis;
+      radio.addEventListener("change", (e) => {
+        this.state.rotationAxis = e.target.value;
+        console.log(this.state.rotationAxis);
+      });
+
+      label.appendChild(radio);
+      rotationAxisGroup.appendChild(label);
+    });
+
     const rotationOriginInput = this.createCheckboxField(
       "rotationAroundOrigin",
       "Rotacionar ao redor da origem (0,0)"
@@ -139,25 +167,16 @@ export class Modal {
       "Refletir em torno do eixo Y"
     );
 
-    const shXInput = this.createInputField(
-      "shX",
-      "sh x: ",
-      "number",
-      0
-    );
+    const shXInput = this.createInputField("shX", "sh x: ", "number", 0);
 
-    const shYInput = this.createInputField(
-      "shY",
-      "sh y: ",
-      "number",
-      0
-    );
+    const shYInput = this.createInputField("shY", "sh y: ", "number", 0);
 
     // Add fields to form
     editForm.appendChild(translateXInput);
     editForm.appendChild(translateYInput);
     editForm.appendChild(translateZInput);
     editForm.appendChild(rotationInput);
+    editForm.appendChild(rotationAxisGroup);
     editForm.appendChild(rotationOriginInput);
     editForm.appendChild(rotationCenterInput);
     rotationFormGroup.appendChild(rotationPointInput);
@@ -250,6 +269,7 @@ export class Modal {
   resetForm() {
     this.state = {
       rotationDegrees: 0,
+      rotationAxis: "z",
       rotationAroundOrigin: false,
       rotationAroundPoint: false,
       rotationAroundCenter: false,
@@ -277,6 +297,12 @@ export class Modal {
       this.inputs.translateZ.value = this.state.translateZ;
     if (this.inputs.rotationDegrees)
       this.inputs.rotationDegrees.value = this.state.rotationDegrees;
+    const radioButtons = document.querySelectorAll(
+      'input[name="rotationAxis"]'
+    );
+    radioButtons.forEach((radio) => {
+      radio.checked = radio.value === "z";
+    });
     if (this.inputs.rotationAroundOrigin)
       this.inputs.rotationAroundOrigin.checked =
         this.state.rotationAroundOrigin;
@@ -316,43 +342,74 @@ export class Modal {
     if (!this.currentLayer) return;
 
     // translation
-    if (this.state.translateX !== 0 || this.state.translateY !== 0 || this.state.translateZ !== 0) {
-      this.currentLayer.translate(this.state.translateX, this.state.translateY, this.state.translateZ);
+    if (
+      this.state.translateX !== 0 ||
+      this.state.translateY !== 0 ||
+      this.state.translateZ !== 0
+    ) {
+      this.currentLayer.translate(
+        this.state.translateX,
+        this.state.translateY,
+        this.state.translateZ
+      );
     }
 
     // scaling
-    if (this.state.scaleX !== 1 || this.state.scaleY !== 1 || this.state.scaleZ !== 1) {
+    if (
+      this.state.scaleX !== 1 ||
+      this.state.scaleY !== 1 ||
+      this.state.scaleZ !== 1
+    ) {
       if (this.state.scaleAroundOrigin) {
         const basePoint = Array.isArray(this.currentLayer.position[0])
           ? this.currentLayer.position[0]
           : this.currentLayer.position;
-        this.currentLayer.scaleFrom(this.state.scaleX, this.state.scaleY, this.state.scaleZ, basePoint);
+        this.currentLayer.scaleFrom(
+          this.state.scaleX,
+          this.state.scaleY,
+          this.state.scaleZ,
+          basePoint
+        );
       } else {
-        this.currentLayer.scale(this.state.scaleX, this.state.scaleY, this.state.scaleZ);
+        this.currentLayer.scale(
+          this.state.scaleX,
+          this.state.scaleY,
+          this.state.scaleZ
+        );
       }
     }
     // rotation
     if (this.state.rotationDegrees) {
+      const degrees = this.state.rotationDegrees;
+      const point = [this.state.rotatePointX, this.state.rotatePointY, 0]; // Assuming z=0 for 2D rotation, adjust as needed
+
       if (this.state.rotationAroundCenter) {
-        this.currentLayer.rotateCenter(this.state.rotationDegrees);
+        this.currentLayer.rotateAroundAxis(
+          degrees,
+          this.state.rotationAxis,
+          point
+        );
       } else if (this.state.rotationAroundOrigin) {
-        this.currentLayer.rotateOrigin(this.state.rotationDegrees);
+        this.currentLayer.rotateAroundAxis(degrees, this.state.rotationAxis);
       } else if (this.state.rotationAroundPoint) {
-        const point = [this.state.rotatePointX, this.state.rotatePointY];
-        this.currentLayer.rotateAroundPoint(this.state.rotationDegrees, point);
+        this.currentLayer.rotateAroundAxis(
+          degrees,
+          this.state.rotationAxis,
+          point
+        );
       } else {
-        this.currentLayer.rotate(this.state.rotationDegrees);
+        this.currentLayer.rotateAroundAxis(degrees, this.state.rotationAxis);
       }
     }
 
     // reflection
     if (this.state.reflectX || this.state.reflectY) {
-      this.currentLayer.reflect(this.state.reflectX, this.state.reflectY)
+      this.currentLayer.reflect(this.state.reflectX, this.state.reflectY);
     }
 
     // shear
     if (this.state.shX || this.state.shY) {
-      this.currentLayer.shear(this.state.shX || 0, this.state.shY || 0)
+      this.currentLayer.shear(this.state.shX || 0, this.state.shY || 0);
     }
 
     this.close();

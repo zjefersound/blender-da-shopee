@@ -11,37 +11,35 @@ export class Rect extends Layer {
     this.position = position.map(([x, y, z = 0]) => [x, y, z]);
   }
 
-  rotate(degrees) {
-    const point = Array.isArray(this.position[0])
-      ? this.position[0]
-      : this.position;
-    this.rotateAroundPoint(degrees, point);
-  }
-
-  rotateCenter(degrees) {
-    const center = this.getCenter();
-    this.rotateAroundPoint(degrees, center);
-  }
-
-  rotateAroundPoint(degrees, point) {
-    // Point is an array of [x, y, z]. Example: [0,0,0]
+  rotateAroundAxis(degrees, axis, point = [0, 0, 0]) {
     const angle = (degrees * Math.PI) / 180;
-    const center = point;
+    let rotationMatrix;
 
-    const rotationMatrix = [
-      [Math.cos(angle), -Math.sin(angle), 0],
-      [Math.sin(angle), Math.cos(angle), 0],
-      [0, 0, 1],
-    ];
+    if (axis === "x") {
+      rotationMatrix = [
+        [1, 0, 0],
+        [0, Math.cos(angle), -Math.sin(angle)],
+        [0, Math.sin(angle), Math.cos(angle)],
+      ];
+    } else if (axis === "y") {
+      rotationMatrix = [
+        [Math.cos(angle), 0, Math.sin(angle)],
+        [0, 1, 0],
+        [-Math.sin(angle), 0, Math.cos(angle)],
+      ];
+    } else if (axis === "z") {
+      rotationMatrix = [
+        [Math.cos(angle), -Math.sin(angle), 0],
+        [Math.sin(angle), Math.cos(angle), 0],
+        [0, 0, 1],
+      ];
+    } else {
+      throw new Error("Invalid axis. Use 'x', 'y', or 'z'.");
+    }
 
-    // Rotate around center
-    this.position = this.position.map((point) =>
-      this.transformPoint(point, center, rotationMatrix)
+    this.position = this.position.map((pointCoord) =>
+      this.transformPoint(pointCoord, point, rotationMatrix)
     );
-  }
-
-  rotateOrigin(degrees) {
-    this.rotateAroundPoint(degrees, [0, 0, 0]);
   }
 
   transformPoint(point, translation, matrix) {
