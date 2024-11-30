@@ -24,8 +24,10 @@ export class Modal {
       scaleZ: 1,
       reflectX: false,
       reflectY: false,
+      reflectZ: false,
       shX: 0,
       shY: 0,
+      shZ: 0,
     };
     this.inputs = {};
     this.initializeModal();
@@ -167,9 +169,14 @@ export class Modal {
       "Refletir em torno do eixo Y"
     );
 
-    const shXInput = this.createInputField("shX", "sh x: ", "number", 0);
+    const reflectZInput = this.createCheckboxField(
+      "reflectZ",
+      "Refletir em torno do eixo Z"
+    );
 
+    const shXInput = this.createInputField("shX", "sh x: ", "number", 0);
     const shYInput = this.createInputField("shY", "sh y: ", "number", 0);
+    const shZInput = this.createInputField("shZ", "sh z: ", "number", 0);
 
     // Add fields to form
     editForm.appendChild(translateXInput);
@@ -189,8 +196,10 @@ export class Modal {
     editForm.appendChild(scaleOriginInput);
     editForm.appendChild(reflectXInput);
     editForm.appendChild(reflectYInput);
+    editForm.appendChild(reflectZInput);
     editForm.appendChild(shXInput);
     editForm.appendChild(shYInput);
+    editForm.appendChild(shZInput);
 
     const modalFooter = document.createElement("div");
     modalFooter.className = "modal-footer";
@@ -284,8 +293,10 @@ export class Modal {
       scaleAroundOrigin: false,
       reflectX: false,
       reflectY: false,
+      reflectZ: false,
       shX: 0,
       shY: 0,
+      shZ: 0,
     };
 
     // Update input fields with default values
@@ -324,8 +335,11 @@ export class Modal {
       this.inputs.reflectX.checked = this.state.reflectX;
     if (this.inputs.reflectY)
       this.inputs.reflectY.checked = this.state.reflectY;
+    if (this.inputs.reflectZ)
+      this.inputs.reflectZ.checked = this.state.reflectZ;
     if (this.inputs.shX) this.inputs.shX.value = this.state.shX;
     if (this.inputs.shY) this.inputs.shY.value = this.state.shY;
+    if (this.inputs.shZ) this.inputs.shZ.value = this.state.shZ;
   }
 
   open(layer) {
@@ -403,13 +417,21 @@ export class Modal {
     }
 
     // reflection
-    if (this.state.reflectX || this.state.reflectY) {
-      this.currentLayer.reflect(this.state.reflectX, this.state.reflectY);
+    if (this.state.reflectX || this.state.reflectY || this.state.reflectZ) {
+      this.currentLayer.reflect(
+        this.state.reflectX,
+        this.state.reflectY,
+        this.state.reflectZ
+      );
     }
 
     // shear
-    if (this.state.shX || this.state.shY) {
-      this.currentLayer.shear(this.state.shX || 0, this.state.shY || 0);
+    if (this.state.shX || this.state.shY || this.state.shZ) {
+      this.currentLayer.shear(
+        this.state.shX || 0,
+        this.state.shY || 0,
+        this.state.shZ || 0
+      );
     }
 
     this.close();
